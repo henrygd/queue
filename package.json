@@ -12,7 +12,7 @@
 	"bugs": {
 		"url": "https://github.com/henrygd/queue/issues"
 	},
-	"source": "index.ts",
+	"main": "index.js",
 	"exports": {
 		".": {
 			"import": "./index.js",

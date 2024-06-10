@@ -1,13 +1,10 @@
-<!-- [size-image]: https://img.shields.io/github/size/henrygd/queue/index.js?style=flat-square&color=%2349ac0c
- -->
-
-[size-image]: https://img.shields.io/badge/size-216_bytes-green?color=%2349ac0c
-[license-image]: https://img.shields.io/github/license/henrygd/bigger-picture?color=%239945ee
+[size-image]: https://img.shields.io/github/size/henrygd/queue/index.js?style=flat
+[license-image]: https://img.shields.io/github/license/henrygd/bigger-picture?style=flat&color=%2349ac0c
 [license-url]: /LICENSE
 
 # @henrygd/queue ![File Size][size-image] [![MIT license][license-image]][license-url]
 
-Tiny async queue with concurrency control. Like p-limit, queue, or promise-queue, but a lot smaller.
+Tiny async queue with concurrency control. Like `p-limit`, `promise-queue`, or `queue`, but a lot smaller.
 
 ## Installation
 
