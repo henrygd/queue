@@ -7,7 +7,11 @@ type Node<T> = {
 	next?: Node<T>
 }
 
-export let newQueue = (concurrency: number) => {
+type Queue = {
+	add<T>(p: () => Promise<T>): Promise<T>
+}
+
+export let newQueue = (concurrency: number): Queue => {
 	let active = 0
 	let head: Node<Promise<any>> | undefined
 	let tail: Node<Promise<any>> | undefined
