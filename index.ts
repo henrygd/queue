@@ -1,16 +1,27 @@
+/** List node */
 type Node<T> = {
 	/** input promise wrapper */
 	p: () => T
+	/** resolve returned promise */
 	res: (value: T) => void
+	/** reject returned promise */
 	rej: (reason: any) => void
 	/** next node pointer */
 	next?: Node<T>
 }
 
-type Queue = {
+/** Queue interface */
+interface Queue {
+	/** Add a promise / async function to the queue */
 	add<T>(p: () => Promise<T>): Promise<T>
 }
 
+/**
+ * Creates a new queue with the specified concurrency level.
+ *
+ * @param {number} concurrency - The maximum number of concurrent operations.
+ * @return {Queue} - The newly created queue.
+ */
 export let newQueue = (concurrency: number): Queue => {
 	let active = 0
 	let head: Node<Promise<any>> | undefined

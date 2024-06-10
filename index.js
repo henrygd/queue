@@ -1,1 +1,1 @@
-var u=a=>{let n=0,r,o,i=async()=>{if(!r||n>=a)return;n++;let t=r;r=r.e;try{t.r(await t.p())}catch(e){t.t(e)}n--,i()};return{add(t){let e={p:t},d=new Promise((s,l)=>{e.r=s,e.t=l});return r?(o.e=e,o=e):r=o=e,i(),d}}};export{u as newQueue};
+var T=a=>{let o=0,r,t,n=async()=>{if(!r||o>=a)return;o++;let i=r;r=r.e;try{i.r(await i.p())}catch(e){i.i(e)}o--,n()};return{add(i){let e={p:i},d=new Promise((s,u)=>{e.r=s,e.i=u});return r?(t.e=e,t=e):r=t=e,n(),d}}};export{T as newQueue};

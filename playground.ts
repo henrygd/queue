@@ -1,4 +1,4 @@
-import { newQueue } from '.'
+import { newQueue } from './index.ts'
 
 // const queue = newQueue(5)
 
