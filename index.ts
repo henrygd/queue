@@ -18,7 +18,7 @@ export let newQueue = (concurrency: number) => {
 		}
 		active++
 		let curHead = head
-		head = head?.next
+		head = head.next
 		try {
 			curHead.res(await curHead.p())
 		} catch (e) {
