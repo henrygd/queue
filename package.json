@@ -3,7 +3,7 @@
 	"version": "0.0.2",
 	"license": "MIT",
 	"module": "true",
-	"description": "Tiny async queue with concurrency control. Like p-limit, queue, or promise-queue, but a lot smaller.",
+	"description": "Tiny async queue with concurrency control. Like p-limit but smaller, faster, and easier.",
 	"author": "Hank Dollman <hank@henrygd.me> (https://henrygd.me)",
 	"repository": {
 		"type": "git",
@@ -12,16 +12,17 @@
 	"bugs": {
 		"url": "https://github.com/henrygd/queue/issues"
 	},
-	"main": "index.js",
 	"exports": {
 		".": {
 			"import": "./index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./index.d.ts"
 		}
 	},
 	"types": "./index.d.ts",
 	"scripts": {
-		"build": "bun run build.ts && tsc -d index.ts --emitDeclarationOnly"
+		"build": "bun run build.ts && tsc -d index.ts --emitDeclarationOnly",
+		"test": "bun test",
+		"bench": "bun run bench.ts @henrygd/queue && bun run bench.ts p-limit"
 	},
 	"keywords": [
 		"promise",
@@ -41,6 +42,7 @@
 	"devDependencies": {
 		"@types/bun": "^1.1.3",
 		"esbuild": "^0.21.4",
+		"p-limit": "^5.0.0",
 		"typescript": "^5.4.5"
 	}
 }
