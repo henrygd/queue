@@ -2,6 +2,14 @@
 interface Queue {
     /** Add a promise / async function to the queue */
     add<T>(p: () => Promise<T>): Promise<T>;
+    /** Returns a promise that resolves when the queue is empty */
+    done(): Promise<void>;
+    /** Empties the queue (active promises are not cancelled) */
+    clear(): void;
+    /** Returns the number of promises currently running */
+    active(): number;
+    /** Returns the total number of promises in the queue */
+    size(): number;
 }
 /**
  * Creates a new queue with the specified concurrency level.

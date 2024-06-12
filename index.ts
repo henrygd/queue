@@ -14,6 +14,14 @@ type Node<T> = {
 interface Queue {
 	/** Add a promise / async function to the queue */
 	add<T>(p: () => Promise<T>): Promise<T>
+	/** Returns a promise that resolves when the queue is empty */
+	done(): Promise<void>
+	/** Empties the queue (active promises are not cancelled) */
+	clear(): void
+	/** Returns the number of promises currently running */
+	active(): number
+	/** Returns the total number of promises in the queue */
+	size(): number
 }
 
 /**
@@ -24,8 +32,11 @@ interface Queue {
  */
 export let newQueue = (concurrency: number): Queue => {
 	let active = 0
-	let head: Node<Promise<any>> | undefined
-	let tail: Node<Promise<any>> | undefined
+	let size = 0
+	let head: Node<Promise<any>> | undefined | null
+	let tail: Node<Promise<any>> | undefined | null
+	let donePromise: Promise<void> | void
+	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 
 	let run = async () => {
 		if (!head || active >= concurrency) {
@@ -40,7 +51,11 @@ export let newQueue = (concurrency: number): Queue => {
 			curHead.rej(e)
 		}
 		active--
-		run()
+		if (--size) {
+			run()
+		} else {
+			donePromise = resolveDonePromise?.()
+		}
 	}
 
 	return {
@@ -56,11 +71,25 @@ export let newQueue = (concurrency: number): Queue => {
 			} else {
 				head = tail = node
 			}
+			size++
 			run()
 			return promise as Promise<T>
 		},
-		// clear() {
-		// 	head = tail = undefined
-		// },
+		done: () => {
+			if (donePromise) {
+				return donePromise
+			}
+			donePromise = new Promise((res) => (resolveDonePromise = res))
+			if (!size) {
+				resolveDonePromise()
+			}
+			return donePromise
+		},
+		clear() {
+			head = tail = null
+			size = active
+		},
+		active: () => active,
+		size: () => size,
 	}
 }

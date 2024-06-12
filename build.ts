@@ -1,10 +1,10 @@
-import * as esbuild from 'esbuild'
+import { build } from 'esbuild'
 
-await esbuild.build({
+await build({
 	entryPoints: ['index.ts'],
 	bundle: true,
 	minify: true,
-	mangleProps: /^res|rej|next$/,
+	mangleProps: /^res$|^rej$|^next$/,
 	format: 'esm',
 	outfile: 'index.js',
 })
