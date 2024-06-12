@@ -4,7 +4,7 @@
 
 # @henrygd/queue ![File Size][size-image] [![MIT license][license-image]][license-url]
 
-Tiny async queue with concurrency control. Like `p-limit`, `promise-queue`, or `queue`, but a lot smaller.
+Tiny async queue with concurrency control. Like `p-limit` but smaller, faster, and easier.
 
 ## Installation
 
@@ -14,41 +14,75 @@ pnpm install @henrygd/queue
 
 ## Usage
 
-Add promises to the queue with the `add` method. It returns a promise that resolves when the job is finished.
+Create a queue with the `newQueue` function, then add promises / async functions to the queue with the `add` method.
 
+You can use `queue.done()` to wait for the queue to be empty.
+
+<!-- prettier-ignore -->
 ```ts
 import { newQueue } from '@henrygd/queue'
 
-// exmaple promise that waits for x milliseconds
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-// create a queue with a maximum of 5 concurrent jobs
-const queue = newQueue(5)
-
-// add 25 promises to the queue and log when they finish
-for (let i = 1; i <= 25; i++) {
-	queue.add(() => wait(500)).then(() => console.log(i, 'done'))
-}
-```
-
-The returned promise has the same type as the supplied promise, so use it as if you were using the supplied promise directly.
-
-```ts
+// create a new queue with a concurrency of 2
 const queue = newQueue(2)
 
-const sites = [
-	'https://google.com',
-	'https://github.com',
-	'https://youtube.com',
-	'https://twitter.com',
-	'https://facebook.com',
-	'https://reddit.com',
-]
+const pokemon = ['ditto', 'hitmonlee', 'pidgeot', 'poliwhirl', 'golem', 'charizard']
 
-for (const site of sites) {
-	queue.add(() => fetch(site)).then((res) => console.log(site, res.status))
+for (const name of pokemon) {
+  queue.add(async () => {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+    const json = await res.json()
+    console.log(`${json.name}: ${json.height * 10}cm | ${json.weight / 10}kg`)
+  })
 }
+
+console.log('running')
+await queue.done()
+console.log('done')
 ```
 
-<!--
-## CDN usage -->
+The return type is the same as the supplied promise, so you can use it as if you were using the supplied promise directly.
+
+```ts
+const res = await queue.add(() => fetch('https://pokeapi.co/api/v2/pokemon'))
+console.log(res.ok, res.status, res.headers)
+```
+
+## Interface
+
+```ts
+// add adds a promise / async function to the queue
+queue.add(() => Promise<T>): Promise<T>
+
+// size returns the total number of promises in the queue
+queue.size(): number
+
+// active returns the number of promises currently running
+queue.active(): number
+
+// clear empties the queue (active promises are not cancelled)
+queue.clear(): void
+
+// done returns a promise that resolves when the queue is empty
+queue.done(): Promise<void>
+```
+
+## Benchmark
+
+Average of five runs passing `Promise.resolve()` through the same queue one million times on a Ryzen 7 6800H laptop using Bun 1.1.12.
+
+`p-limit` is used for comparison because it's the most popular comparable library, with 117 million weekly downloads (!) as of June 2024. I've used it before and it's great.
+
+Also included is the minified bundle size (no gzip) for reference.
+
+| Library        | Version | Time (ms) | Heap size (MB) | Bundle size (B) |
+| -------------- | ------- | --------- | -------------- | --------------- |
+| @henrygd/queue | 1.0.0   | 512       | 37.4           | 352             |
+| p-limit        | 5.0.0   | 2,276     | 223.3          | 1,763           |
+
+## Real world examples
+
+[`henrygd/optimize`](https://github.com/henrygd/optimize) - Uses `@henrygd/queue` to parallelize image optimization jobs.
+
+## License
+
+[MIT license](/LICENSE)
