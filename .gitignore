@@ -1,3 +1,5 @@
 node_modules
 .idea.md
 *.gz
+*.bak
+jsr.json
