@@ -28,11 +28,11 @@ const queue = newQueue(2)
 const pokemon = ['ditto', 'hitmonlee', 'pidgeot', 'poliwhirl', 'golem', 'charizard']
 
 for (const name of pokemon) {
-  queue.add(async () => {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
-    const json = await res.json()
-    console.log(`${json.name}: ${json.height * 10}cm | ${json.weight / 10}kg`)
-  })
+    queue.add(async () => {
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+        const json = await res.json()
+        console.log(`${json.name}: ${json.height * 10}cm | ${json.weight / 10}kg`)
+    })
 }
 
 console.log('running')
@@ -52,16 +52,12 @@ console.log(res.ok, res.status, res.headers)
 ```ts
 // add adds a promise / async function to the queue
 queue.add(() => Promise<T>): Promise<T>
-
 // size returns the total number of promises in the queue
 queue.size(): number
-
 // active returns the number of promises currently running
 queue.active(): number
-
 // clear empties the queue (active promises are not cancelled)
 queue.clear(): void
-
 // done returns a promise that resolves when the queue is empty
 queue.done(): Promise<void>
 ```
