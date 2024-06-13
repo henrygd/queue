@@ -35,7 +35,6 @@ export let newQueue = (concurrency: number): Queue => {
 	let size = 0
 	let head: Node<Promise<any>> | undefined | null
 	let tail: Node<Promise<any>> | undefined | null
-	let donePromise: Promise<void> | void
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 
 	let run = async () => {
@@ -54,7 +53,7 @@ export let newQueue = (concurrency: number): Queue => {
 		if (--size) {
 			run()
 		} else {
-			donePromise = resolveDonePromise?.()
+			resolveDonePromise?.()
 		}
 	}
 
@@ -76,14 +75,12 @@ export let newQueue = (concurrency: number): Queue => {
 			return promise as Promise<T>
 		},
 		done: () => {
-			if (donePromise) {
-				return donePromise
-			}
-			donePromise = new Promise((res) => (resolveDonePromise = res))
-			if (!size) {
-				resolveDonePromise()
-			}
-			return donePromise
+			return new Promise((resolve) => {
+				resolveDonePromise = resolve
+				if (!size) {
+					resolveDonePromise()
+				}
+			})
 		},
 		clear() {
 			head = tail = null
