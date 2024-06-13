@@ -31,6 +31,29 @@ test('greater concurrency should be faster', async () => {
 	expect(timeTwo).toBeLessThan(timeOne)
 })
 
+test('add method should return a promise', async () => {
+	const queue = newQueue(2)
+	const promise = queue.add(() => new Promise((resolve) => resolve(1)))
+	expect(promise).toBeInstanceOf(Promise)
+	expect(promise).resolves.toBe(1)
+
+	const promiseErr = queue.add(() => new Promise((_, reject) => reject(new Error())))
+	expect(promiseErr).toBeInstanceOf(Promise)
+	expect(promiseErr).rejects.toThrow()
+
+	const asyncFn = queue.add(async () => {
+		return 'hello'
+	})
+	expect(asyncFn).toBeInstanceOf(Promise)
+	expect(asyncFn).resolves.toBe('hello')
+
+	const asyncFnErr = queue.add(async () => {
+		throw new Error('hullo')
+	})
+	expect(asyncFnErr).toBeInstanceOf(Promise)
+	expect(asyncFnErr).rejects.toThrow('hullo')
+})
+
 test('size should return the number of promises in the queue', async () => {
 	const queue = newQueue(2)
 	expect(queue.size()).toBe(0)
@@ -57,9 +80,32 @@ test('active should return the number of active jobs', async () => {
 	expect(queue.active()).toBe(0)
 })
 
-test('done should work even if the queue is empty', async () => {
+test.only('queue.done() should work properly and be reusable', async () => {
 	const queue = newQueue(2)
+	// works on empty queue
 	await queue.done()
+	expect(queue.size()).toBe(0)
+	// works with simple operation
+	queue.add(() => wait(10))
+	expect(queue.size()).toBe(1)
+	await queue.done()
+	expect(queue.size()).toBe(0)
+	// works repeatedly with clear on a bunch of random timings
+	for (let i = 0; i < 10; i++) {
+		const jobs = 50
+		const jobTime = Math.ceil(Math.random() * 5 + 1)
+		const clearTime = Math.ceil(Math.random() * 25 + 5)
+		for (let i = 0; i < jobs; i++) {
+			queue.add(() => wait(jobTime))
+		}
+		setTimeout(() => {
+			expect(queue.size()).toBeGreaterThanOrEqual(jobs - Math.trunc((clearTime / jobTime) * 2))
+			queue.clear()
+			expect(queue.size()).toBe(2)
+		}, clearTime)
+		await queue.done()
+		expect(queue.size()).toBe(0)
+	}
 })
 
 test('clear should clear the queue', async () => {
@@ -135,36 +181,23 @@ async function testConcurrency(createQueue: CreateQueue) {
 	}
 
 	// Concurrent checks to ensure only 2 promises are running at the same time
-	const checks = [
-		new Promise<void>((resolve) =>
-			setTimeout(() => {
-				expect(running).toContain(1)
-				expect(running).toContain(2)
-				expect(running.length).toBe(2)
-				resolve()
-			}, 50)
-		),
+	setTimeout(() => {
+		expect(running).toContain(1)
+		expect(running).toContain(2)
+		expect(running.length).toBe(2)
+	}, 50)
+	setTimeout(() => {
+		expect(running).toContain(1)
+		expect(running).toContain(3)
+		expect(running.length).toBe(2)
+	}, 250)
+	setTimeout(() => {
+		expect(running).toContain(3)
+		expect(running).toContain(4)
+		expect(running.length).toBe(2)
+	}, 350)
 
-		new Promise<void>((resolve) =>
-			setTimeout(() => {
-				expect(running).toContain(1)
-				expect(running).toContain(3)
-				expect(running.length).toBe(2)
-				resolve()
-			}, 250)
-		),
-
-		new Promise<void>((resolve) =>
-			setTimeout(() => {
-				expect(running).toContain(3)
-				expect(running).toContain(4)
-				expect(running.length).toBe(2)
-				resolve()
-			}, 350)
-		),
-	]
-
-	await Promise.all([p1, p2, p3, p4, ...checks])
+	await queue.done()
 
 	expect(results).toEqual([2, 1, 3, 4])
 }
