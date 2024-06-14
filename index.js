@@ -1,1 +1,0 @@
-var P=a=>{let o=0,n=0,e,s,d,t,l=async()=>{if(!e||o>=a)return;o++;let i=e;e=e.e;try{i.i(await i.p())}catch(r){i.r(r)}o--,--n?l():d=t?.()};return{add(i){let r={p:i},u=new Promise((m,v)=>{r.i=m,r.r=v});return e?(s.e=r,s=r):e=s=r,n++,l(),u},done:()=>d||(d=new Promise(i=>t=i),n||t(),d),clear(){e=s=null,n=o},active:()=>o,size:()=>n}};export{P as newQueue};
