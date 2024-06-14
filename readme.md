@@ -1,4 +1,4 @@
-[size-image]: https://img.shields.io/github/size/henrygd/queue/index.js?style=flat
+[size-image]: https://img.shields.io/github/size/henrygd/queue/dist/index.min.js?style=flat
 [license-image]: https://img.shields.io/github/license/henrygd/bigger-picture?style=flat&color=%2349ac0c
 [license-url]: /LICENSE
 
