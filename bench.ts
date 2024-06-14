@@ -4,6 +4,7 @@ import { newQueue } from '.'
 import pLimit from 'p-limit'
 import pq from 'promise-queue'
 import Queue from 'queue'
+import { queue as asyncQueue } from 'async'
 
 const concurrency = 5
 // warm up - we set to 2,000 later
@@ -13,6 +14,7 @@ const queue = newQueue(concurrency)
 const limit = pLimit(concurrency)
 const promiseQueue = new pq(concurrency)
 const q = new Queue({ results: [], concurrency })
+const aQueue = asyncQueue(async (task: () => Promise<any>) => await task(), concurrency)
 
 function checkEqual(a: any, b: any) {
 	if (a !== b) {
@@ -41,6 +43,18 @@ bench('promise-queue', async () => {
 		jobs.push(promiseQueue.add(async () => j++))
 	}
 	await Promise.all(jobs)
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
+
+bench('async', async () => {
+	let i = 0
+	let j = 0
+	while (i < loops) {
+		i++
+		aQueue.push(async () => j++)
+	}
+	await aQueue.drain()
 	// make sure all promises resolved
 	checkEqual(i, j)
 })
@@ -75,7 +89,7 @@ await run({
 	silent: true,
 })
 
-loops = 5_000
+loops = 1_000
 
 await run({
 	silent: false, // enable/disable stdout output
