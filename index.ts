@@ -12,8 +12,8 @@ type Node<T> = {
 
 /** Queue interface */
 interface Queue {
-	/** Add a promise / async function to the queue */
-	add<T>(p: () => Promise<T>): Promise<T>
+	/** Add an async function / promise wrapper to the queue */
+	add<T>(promiseFunction: () => Promise<T>): Promise<T>
 	/** Returns a promise that resolves when the queue is empty */
 	done(): Promise<void>
 	/** Empties the queue (active promises are not cancelled) */
@@ -36,51 +36,48 @@ export let newQueue = (concurrency: number): Queue => {
 	let head: Node<Promise<any>> | undefined | null
 	let tail: Node<Promise<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
+	let donePromise: Promise<void> | void
+	let Pomise = Promise
 
-	let run = async () => {
+	let afterRun = () => {
+		active--
+		if (--size) {
+			run()
+		} else {
+			donePromise = resolveDonePromise?.()
+		}
+	}
+
+	let run = () => {
 		if (!head || active >= concurrency) {
 			return
 		}
 		active++
 		let curHead = head
 		head = head.next
-		try {
-			curHead.res(await curHead.p())
-		} catch (e) {
-			curHead.rej(e)
-		}
-		active--
-		if (--size) {
-			run()
-		} else {
-			resolveDonePromise?.()
-		}
+		curHead.p().then(curHead.res, curHead.rej).then(afterRun)
 	}
 
 	return {
-		add<T>(p: () => Promise<T>): Promise<T> {
-			let node = { p } as Node<Promise<T>>
-			let promise = new Promise((res, rej) => {
-				node.res = res
-				node.rej = rej
-			})
-			if (head) {
-				tail!.next = node
-				tail = node
-			} else {
-				head = tail = node
-			}
-			size++
-			run()
-			return promise as Promise<T>
-		},
-		done: () => {
-			return new Promise((resolve) => {
-				resolveDonePromise = resolve
-				if (!size) {
-					resolveDonePromise()
+		add: <T>(p: () => Promise<T>) =>
+			new Pomise((res, rej) => {
+				let node = { p, res, rej }
+				if (head) {
+					tail = tail!.next = node
+				} else {
+					tail = head = node
 				}
-			})
+				size++
+				run()
+			}),
+		done: () => {
+			if (size < 1) {
+				return Pomise.resolve()
+			}
+			if (donePromise) {
+				return donePromise
+			}
+			return (donePromise = new Pomise((resolve) => (resolveDonePromise = resolve)))
 		},
 		clear() {
 			head = tail = null
