@@ -6,7 +6,7 @@ import pq from 'promise-queue'
 import Queue from 'queue'
 
 const concurrency = 5
-// warm up the queue - we set to 2,000 later
+// warm up - we set to 2,000 later
 let loops = 200
 
 const queue = newQueue(concurrency)
@@ -75,7 +75,7 @@ await run({
 	silent: true,
 })
 
-loops = 2_000
+loops = 5_000
 
 await run({
 	silent: false, // enable/disable stdout output
