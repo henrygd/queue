@@ -17,16 +17,12 @@
 			"import": "./dist/index.js",
 			"types": "./dist/index.d.ts"
 		},
-		"./async-local-storage": "./dist/index.async-local-storage.js"
-	},
-	"types": "./dist/index.d.ts",
-	"typesVersions": {
-		"*": {
-			"async-local-storage": [
-				"./dist/index.d.ts"
-			]
+		"./async-storage": {
+			"import": "./dist/index.async-storage.js",
+			"types": "./dist/index.d.ts"
 		}
 	},
+	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly",
 		"test": "bun test",
