@@ -1,6 +1,6 @@
 {
 	"name": "@henrygd/queue",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"license": "MIT",
 	"module": "true",
 	"description": "Tiny async queue with concurrency control. Like p-limit but smaller, faster, and easier.",
