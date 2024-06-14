@@ -1,5 +1,6 @@
 import { test, expect, describe } from 'bun:test'
 import { newQueue } from './index.ts'
+// import { newQueue } from './dist/index.js'
 import { newQueue as newContextQueue } from './index.async-storage.ts'
 import { AsyncLocalStorage } from 'async_hooks'
 
@@ -68,6 +69,19 @@ describe('main', () => {
 		expect(queue.size()).toBe(0)
 	})
 
+	test('jobs should not repeat', async () => {
+		const queue = newQueue(2)
+		const results = [] as number[]
+		for (let i = 0; i < 10; i++) {
+			queue.add(async () => {
+				await wait(i)
+				results.push(i)
+			})
+		}
+		await queue.done()
+		expect(results).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+	})
+
 	test('active should return the number of active jobs', async () => {
 		const queue = newQueue(4)
 		expect(queue.active()).toBe(0)
@@ -107,6 +121,17 @@ describe('main', () => {
 			await queue.done()
 			expect(queue.size()).toBe(0)
 		}
+
+		// works with multiple awaits at same time
+		async function waitDone() {
+			queue.add(() => wait(10))
+			await queue.done()
+		}
+		const jobs = [] as Promise<any>[]
+		for (let i = 0; i < 2; i++) {
+			jobs.push(waitDone())
+		}
+		await Promise.all(jobs)
 	})
 
 	test('clear should clear the queue', async () => {
