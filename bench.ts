@@ -1,77 +1,87 @@
-import { argv } from 'bun'
-import { heapStats } from 'bun:jsc'
-import { newQueue } from './index.js'
+import { run, bench, baseline } from 'mitata'
+
+import { newQueue } from '.'
 import pLimit from 'p-limit'
+import pq from 'promise-queue'
+import Queue from 'queue'
 
-const currentTest = argv[2]
-if (!currentTest) {
-	console.log('Usage: bun bench.ts <library>')
-	process.exit(1)
-}
-
-const concurrency = 10
-const loops = 1_000_000
+const concurrency = 5
+// warm up the queue - we set to 2,000 later
+let loops = 200
 
 const queue = newQueue(concurrency)
 const limit = pLimit(concurrency)
+const promiseQueue = new pq(concurrency)
+const q = new Queue({ results: [], concurrency })
 
-const promiseFunction = () => Promise.resolve()
-const runTimes = {} as Record<string, [number, number][]>
-
-async function bench(name: string, runs: number, fn: () => any) {
-	Bun.gc(true)
-	const start = performance.now()
-	const heapSize = await fn()
-	// discard the first run result
-	if (runs === 1) {
-		return
-	}
-	if (!runTimes[name]) {
-		runTimes[name] = []
-	}
-	runTimes[name].push([performance.now() - start, heapSize])
-	// console.log(
-	// 	name,
-	// 	`Time: ${Math.trunc(performance.now() - start)}ms; heap: ${Math.trunc(heapSize / 1024 / 1024)} MB`
-	// )
-}
-
-for (let i = 1; i <= 6; i++) {
-	if (currentTest === 'p-limit') {
-		await bench('p-limit', i, async () => {
-			const jobs: Promise<void>[] = []
-			for (let i = 0; i <= loops; i++) {
-				jobs.push(limit(promiseFunction))
-			}
-			await Promise.all(jobs)
-			return heapStats().heapSize
-		})
-	}
-	if (currentTest === '@henrygd/queue') {
-		await bench('@henrygd/queue', i, async () => {
-			for (let i = 0; i <= loops; i++) {
-				queue.add(promiseFunction)
-			}
-			await queue.done()
-			return heapStats().heapSize
-		})
+function checkEqual(a: any, b: any) {
+	if (a !== b) {
+		throw new Error(`${a} !== ${b}`)
 	}
 }
 
-const averages = [] as {
-	name: string
-	time: string
-	heap: string
-}[]
+baseline('@henrygd/queue', async () => {
+	let i = 0
+	let j = 0
+	while (i < loops) {
+		i++
+		queue.add(async () => j++)
+	}
+	await queue.done()
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
 
-for (const [name, data] of Object.entries(runTimes)) {
-	const t = data.reduce((a, b) => a + b[0], 0) / data.length
-	const heapSize = data.reduce((a, b) => a + b[1], 0) / data.length
-	averages.push({
-		name,
-		time: Math.trunc(t) + 'ms',
-		heap: `${(heapSize / 1024 / 1024).toFixed(2)}MB`,
-	})
-}
+bench('promise-queue', async () => {
+	let i = 0
+	let j = 0
+	const jobs = [] as Promise<any>[]
+	while (i < loops) {
+		i++
+		jobs.push(promiseQueue.add(async () => j++))
+	}
+	await Promise.all(jobs)
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
 
-console.table(averages)
+bench('queue', async () => {
+	let i = 0
+	let j = 0
+	while (i < loops) {
+		i++
+		q.push(async () => j++)
+	}
+	await q.start()
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
+
+bench('p-limit', async () => {
+	let i = 0
+	let j = 0
+	const jobs = [] as Promise<any>[]
+	while (i < loops) {
+		i++
+		jobs.push(limit(async () => j++))
+	}
+	await Promise.all(jobs)
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
+
+// warm up
+await run({
+	silent: true,
+})
+
+loops = 2_000
+
+await run({
+	silent: false, // enable/disable stdout output
+	avg: true, // enable/disable avg column (default: true)
+	json: false, // enable/disable json output (default: false)
+	colors: true, // enable/disable colors (default: true)
+	min_max: true, // enable/disable min/max column (default: true)
+	percentiles: true, // enable/disable percentiles column (default: true)
+})

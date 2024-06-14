@@ -9,7 +9,7 @@ Tiny async queue with concurrency control. Like `p-limit` but smaller, faster, a
 ## Installation
 
 ```bash
-pnpm install @henrygd/queue
+npm install @henrygd/queue
 ```
 
 ## Usage
@@ -47,6 +47,9 @@ const res = await queue.add(() => fetch('https://pokeapi.co/api/v2/pokemon'))
 console.log(res.ok, res.status, res.headers)
 ```
 
+> [!TIP]
+> If you need support for Node's [AsyncLocalStorage](https://nodejs.org/api/async_context.html#introduction), import `@henrygd/queue/async-storage` instead.
+
 ## Interface
 
 ```ts
@@ -62,18 +65,32 @@ queue.clear(): void
 queue.done(): Promise<void>
 ```
 
-## Benchmark
+## Similar libraries and benchmarks
 
-Average of five runs passing `Promise.resolve()` through the same queue one million times on a Ryzen 7 6800H laptop using Bun 1.1.12.
+| Library        | Version | Weekly downloads | Bundle size (bytes) |
+| -------------- | ------- | ---------------- | ------------------- |
+| @henrygd/queue | 1.0.1   | only me :)       | 342                 |
+| p-limit        | 5.0.0   | 118,953,973      | 1,763               |
+| queue          | 7.0.0   | 4,259,101        | 2,840               |
+| promise-queue  | 2.2.5   | 1,092,431        | 2,200               |
 
-`p-limit` is used for comparison because it's the most popular comparable library, with 117 million weekly downloads (!) as of June 2024. I've used it before and it's great.
+### Browser benchmark
 
-Also included is the minified bundle size (no gzip) for reference.
+Each operation adds 1,000 async functions to the queue and waits for them to resolve. The function just increments a counter.
 
-| Library        | Version | Time (ms) | Heap size (MB) | Bundle size (B) |
-| -------------- | ------- | --------- | -------------- | --------------- |
-| @henrygd/queue | 1.0.0   | 512       | 37.4           | 352             |
-| p-limit        | 5.0.0   | 2,276     | 223.3          | 1,763           |
+In reality, you may not be running so many jobs at once, and your jobs will take much longer to resolve. So performance will depend more on the jobs themselves.
+
+This test was run on Chromium. Chrome / Edge / Opera are the same. Firefox is slower but differences are fairly similar. On Safari you need to uncheck "Run tests in parallel" to get accurate results, and `queue` is a lot faster somehow.
+
+You can run or tweak for yourself here: https://jsbm.dev/cnBxC9EQrjHhX
+
+[![@henrygd/queue - 8,632 Ops/s. promise-queue - 4,669 Ops/s. p-limit - 843 Ops/s. queue - 561 Ops/s](https://henrygd-assets.b-cdn.net/queue/benchmark.png)](https://jsbm.dev/cnBxC9EQrjHhX)
+
+### Bun benchmark
+
+Same test as the browser benchmark, but uses 2,000 promises instead of 1,000.
+
+![@henrygd/queue - 440 µs/iter. promise-queue - 515 µs/iter. p-limit - 1,716 µs/iter. queue - 1,437 µs/iter.](https://henrygd-assets.b-cdn.net/queue/benchmark-bun.png)
 
 ## Real world examples
 
