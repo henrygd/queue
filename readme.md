@@ -105,7 +105,7 @@ I have no idea what's going on with `p-limit` in Node. The same test with Bun pu
 
 ![@henrygd/queue - 1.63x faster than promise-queue. 2.27x than fastq. 3.53x than async.queue. 12.63x than queue. 72.39x than p-limit.](https://henrygd-assets.b-cdn.net/queue/benchmark-node-4500u.png)
 
-## Cloudflare Workers benchmark
+### Cloudflare Workers benchmark
 
 Same test as above, with 5,000 functions, and uses [oha](https://github.com/hatoo/oha) to make 1,000 requests to each worker.
 
