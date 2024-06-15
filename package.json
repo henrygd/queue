@@ -26,8 +26,11 @@
 	"scripts": {
 		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly; ls -l dist",
 		"test": "bun run test:dev && bun test:dist",
-		"test:dev": "bun test",
-		"test:dist": "DIST=true bun test",
+		"test:dev": "bun test test/bun.test.ts",
+		"test:dist": "DIST=true bun test test/bun.test.ts",
+		"test:deno": "bun run test:deno:dev && bun run test:deno:dist",
+		"test:deno:dist": "DIST=true deno test test/deno-test.ts --allow-env",
+		"test:deno:dev": "deno test test/deno-test.ts --allow-env",
 		"bench": "node bench/bench.js",
 		"bench:bun": "bun run bench/bench.ts"
 	},

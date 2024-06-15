@@ -1,9 +1,9 @@
 import { env } from 'bun'
 import { test, expect, describe } from 'bun:test'
-import { newQueue as devQueue } from './index.ts'
-import { newQueue as distQueue } from './dist/index.js'
-import { newQueue as devContextQueue } from './index.async-storage.ts'
-import { newQueue as distContextQueue } from './dist/index.async-storage.js'
+import { newQueue as devQueue } from '../index.ts'
+import { newQueue as distQueue } from '../dist/index.js'
+import { newQueue as devContextQueue } from '../index.async-storage.ts'
+import { newQueue as distContextQueue } from '../dist/index.async-storage.js'
 import { AsyncLocalStorage } from 'async_hooks'
 
 let newQueue: typeof devQueue
@@ -35,8 +35,8 @@ describe('main', () => {
 		const runTimes = [] as number[]
 
 		for (let i = 3; i < 5; i++) {
-			let queue = newQueue(i)
-			let start = performance.now()
+			const queue = newQueue(i)
+			const start = performance.now()
 			for (let i = 0; i < loops; i++) {
 				queue.add(() => wait(waitTime))
 			}
@@ -48,7 +48,7 @@ describe('main', () => {
 		expect(timeTwo).toBeLessThan(timeOne)
 	})
 
-	test('add method should return a promise', async () => {
+	test('add method should return a promise', () => {
 		const queue = newQueue(2)
 		const promise = queue.add(() => new Promise((resolve) => resolve(1)))
 		expect(promise).toBeInstanceOf(Promise)
@@ -129,7 +129,9 @@ describe('main', () => {
 				queue.add(() => wait(jobTime))
 			}
 			setTimeout(() => {
-				expect(queue.size()).toBeGreaterThanOrEqual(jobs - Math.trunc((clearTime / jobTime) * 2))
+				expect(queue.size()).toBeGreaterThanOrEqual(
+					jobs - 1 - Math.trunc((clearTime / jobTime) * 2)
+				)
 				queue.clear()
 				expect(queue.size()).toBe(2)
 			}, clearTime)

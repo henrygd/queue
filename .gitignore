@@ -3,3 +3,5 @@ node_modules
 *.gz
 *.bak
 jsr.json
+deno.lock
+.vscode
