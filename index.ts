@@ -37,7 +37,7 @@ export let newQueue = (concurrency: number): Queue => {
 	let tail: Node<Promise<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 	let donePromise: Promise<void> | void
-	let Pomise = Promise
+	let Promize = Promise
 
 	let afterRun = () => {
 		active--
@@ -60,7 +60,7 @@ export let newQueue = (concurrency: number): Queue => {
 
 	return {
 		add: <T>(p: () => Promise<T>) =>
-			new Pomise((res, rej) => {
+			new Promize((res, rej) => {
 				let node = { p, res, rej }
 				if (head) {
 					tail = tail!.next = node
@@ -71,13 +71,13 @@ export let newQueue = (concurrency: number): Queue => {
 				run()
 			}),
 		done: () => {
-			if (size < 1) {
-				return Pomise.resolve()
+			if (!size) {
+				return Promize.resolve()
 			}
 			if (donePromise) {
 				return donePromise
 			}
-			return (donePromise = new Pomise((resolve) => (resolveDonePromise = resolve)))
+			return (donePromise = new Promize((resolve) => (resolveDonePromise = resolve)))
 		},
 		clear() {
 			head = tail = null

@@ -46,6 +46,7 @@ export let newQueue = (concurrency: number): Queue => {
 	let tail: Node<Promise<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 	let donePromise: Promise<void> | void
+	let Promize = Promise
 
 	let afterRun = () => {
 		active--
@@ -68,7 +69,7 @@ export let newQueue = (concurrency: number): Queue => {
 
 	return {
 		add: <T>(p: () => Promise<T>) =>
-			new Promise((res, rej) => {
+			new Promize((res, rej) => {
 				let node = { p: AsyncResource.bind(p), res, rej }
 				if (head) {
 					tail = tail!.next = node
@@ -78,17 +79,14 @@ export let newQueue = (concurrency: number): Queue => {
 				size++
 				run()
 			}),
-		done() {
+		done: () => {
+			if (!size) {
+				return Promize.resolve()
+			}
 			if (donePromise) {
 				return donePromise
 			}
-			let np: Promise<void> = new Promise((resolve) => (resolveDonePromise = resolve))
-			if (size) {
-				donePromise = np
-			} else {
-				resolveDonePromise()
-			}
-			return np
+			return (donePromise = new Promize((resolve) => (resolveDonePromise = resolve)))
 		},
 		clear() {
 			head = tail = null
