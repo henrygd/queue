@@ -12,6 +12,7 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
+  let Promize = Promise;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -30,7 +31,7 @@ let newQueue = (concurrency) => {
     curHead.p().then(curHead.res, curHead.rej).then(afterRun);
   };
   return {
-    add: (p) => new Promise((res, rej) => {
+    add: (p) => new Promize((res, rej) => {
       let node = { p: AsyncResource.bind(p), res, rej };
       if (head) {
         tail = tail.next = node;
@@ -40,17 +41,14 @@ let newQueue = (concurrency) => {
       size++;
       run();
     }),
-    done() {
+    done: () => {
+      if (!size) {
+        return Promize.resolve();
+      }
       if (donePromise) {
         return donePromise;
       }
-      let np = new Promise((resolve) => resolveDonePromise = resolve);
-      if (size) {
-        donePromise = np;
-      } else {
-        resolveDonePromise();
-      }
-      return np;
+      return donePromise = new Promize((resolve) => resolveDonePromise = resolve);
     },
     clear() {
       head = tail = null;

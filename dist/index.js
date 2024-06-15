@@ -5,7 +5,7 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
-  let Pomise = Promise;
+  let Promize = Promise;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -24,7 +24,7 @@ let newQueue = (concurrency) => {
     curHead.p().then(curHead.b, curHead.c).then(afterRun);
   };
   return {
-    add: (p) => new Pomise((res, rej) => {
+    add: (p) => new Promize((res, rej) => {
       let node = { p, b: res, c: rej };
       if (head) {
         tail = tail.a = node;
@@ -35,13 +35,13 @@ let newQueue = (concurrency) => {
       run();
     }),
     done: () => {
-      if (size < 1) {
-        return Pomise.resolve();
+      if (!size) {
+        return Promize.resolve();
       }
       if (donePromise) {
         return donePromise;
       }
-      return donePromise = new Pomise((resolve) => resolveDonePromise = resolve);
+      return donePromise = new Promize((resolve) => resolveDonePromise = resolve);
     },
     clear() {
       head = tail = null;
