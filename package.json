@@ -2,8 +2,8 @@
 	"name": "@henrygd/queue",
 	"version": "1.0.1",
 	"license": "MIT",
-	"module": "true",
-	"description": "Tiny async queue with concurrency control. Like p-limit but smaller, faster, and easier.",
+	"type": "module",
+	"description": "Tiny async queue with concurrency control. Like p-limit or fastq, but smaller, faster, and easier.",
 	"author": "Hank Dollman <hank@henrygd.me> (https://henrygd.me)",
 	"repository": {
 		"type": "git",
@@ -24,9 +24,10 @@
 	},
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly",
+		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly; ls -l dist",
 		"test": "bun test",
-		"bench": "bun run bench.ts"
+		"bench": "node bench/bench.js",
+		"bench:bun": "bun run bench/bench.ts"
 	},
 	"keywords": [
 		"promise",
@@ -37,16 +38,23 @@
 		"throttle",
 		"rate",
 		"batch",
-		"ratelimit",
 		"task",
 		"queue",
 		"async",
-		"await"
+		"await",
+		"async-queue",
+		"promise-queue",
+		"fast",
+		"worker"
 	],
 	"devDependencies": {
+		"@types/async": "^3.2.24",
 		"@types/bun": "^1.1.3",
+		"async": "^3.2.5",
 		"esbuild": "^0.21.4",
+		"fastq": "^1.17.1",
 		"mitata": "^0.1.11",
+		"neo-async": "^2.6.2",
 		"p-limit": "^5.0.0",
 		"promise-queue": "^2.2.5",
 		"queue": "^7.0.0",

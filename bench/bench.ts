@@ -1,20 +1,22 @@
 import { run, bench, baseline } from 'mitata'
 
-import { newQueue } from '.'
+import { newQueue } from '../index.ts'
 import pLimit from 'p-limit'
 import pq from 'promise-queue'
 import Queue from 'queue'
 import { queue as asyncQueue } from 'async'
+import fastq from 'fastq'
 
 const concurrency = 5
-// warm up - we set to 2,000 later
-let loops = 200
+// warm up - we set to 5,000 later
+let loops = 100
 
 const queue = newQueue(concurrency)
 const limit = pLimit(concurrency)
 const promiseQueue = new pq(concurrency)
 const q = new Queue({ results: [], concurrency })
 const aQueue = asyncQueue(async (task: () => Promise<any>) => await task(), concurrency)
+const fqQueue = fastq.promise(async (task) => await task(), concurrency)
 
 function checkEqual(a: any, b: any) {
 	if (a !== b) {
@@ -47,7 +49,19 @@ bench('promise-queue', async () => {
 	checkEqual(i, j)
 })
 
-bench('async', async () => {
+bench('fastq', async () => {
+	let i = 0
+	let j = 0
+	while (i < loops) {
+		i++
+		fqQueue.push(async () => j++)
+	}
+	await fqQueue.drained()
+	// make sure all promises resolved
+	checkEqual(i, j)
+})
+
+bench('async.queue', async () => {
 	let i = 0
 	let j = 0
 	while (i < loops) {
@@ -89,7 +103,7 @@ await run({
 	silent: true,
 })
 
-loops = 1_000
+loops = 5_000
 
 await run({
 	silent: false, // enable/disable stdout output
