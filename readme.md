@@ -95,7 +95,7 @@ You can run or tweak for yourself here: https://jsbm.dev/uwTSZlrRs9vhz
 
 Same test as the browser benchmark, but uses 5,000 async functions instead of 1,000.
 
-I have no idea what's going on with `p-limit` in Node. Running the same test with Bun puts it just behind `queue`.
+I have no idea what's going on with `p-limit` in Node. The same test with Bun puts it just behind `queue`.
 
 ![@henrygd/queue - 1.61x faster than promise-queue. 2.34x than fastq. 3.49x than async.queue. 4.46x than queue. 72.39x than p-limit.](https://henrygd-assets.b-cdn.net/queue/benchmark-node.png)
 
