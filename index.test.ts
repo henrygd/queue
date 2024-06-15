@@ -1,8 +1,23 @@
+import { env } from 'bun'
 import { test, expect, describe } from 'bun:test'
-import { newQueue } from './index.ts'
-// import { newQueue } from './dist/index.js'
-import { newQueue as newContextQueue } from './index.async-storage.ts'
+import { newQueue as devQueue } from './index.ts'
+import { newQueue as distQueue } from './dist/index.js'
+import { newQueue as devContextQueue } from './index.async-storage.ts'
+import { newQueue as distContextQueue } from './dist/index.async-storage.js'
 import { AsyncLocalStorage } from 'async_hooks'
+
+let newQueue: typeof devQueue
+let contextQueue: typeof devContextQueue
+
+if (env.DIST) {
+	console.log('using dist files')
+	newQueue = distQueue
+	contextQueue = distContextQueue
+} else {
+	console.log('using dev files')
+	newQueue = devQueue
+	contextQueue = devContextQueue
+}
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -159,7 +174,7 @@ describe('main', () => {
 
 describe('async-storage', () => {
 	test('should propagate async execution context properly', async () => {
-		const queue = newContextQueue(2)
+		const queue = contextQueue(2)
 		const store = new AsyncLocalStorage()
 
 		const checkId = async (id: number) => {

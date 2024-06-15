@@ -25,7 +25,9 @@
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly; ls -l dist",
-		"test": "bun test",
+		"test": "bun run test:dev && bun test:dist",
+		"test:dev": "bun test",
+		"test:dist": "DIST=true bun test",
 		"bench": "node bench/bench.js",
 		"bench:bun": "bun run bench/bench.ts"
 	},
