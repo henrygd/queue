@@ -11,51 +11,46 @@ let newQueue = (concurrency) => {
   let head;
   let tail;
   let resolveDonePromise;
-  let run = async () => {
+  let donePromise;
+  let afterRun = () => {
+    active--;
+    if (--size) {
+      run();
+    } else {
+      donePromise = resolveDonePromise?.();
+    }
+  };
+  let run = () => {
     if (!head || active >= concurrency) {
       return;
     }
     active++;
     let curHead = head;
     head = head.next;
-    try {
-      curHead.res(await curHead.p());
-    } catch (e) {
-      curHead.rej(e);
-    }
-    active--;
-    if (--size) {
-      run();
-    } else {
-      resolveDonePromise?.();
-    }
+    curHead.p().then(curHead.res, curHead.rej).then(afterRun);
   };
   return {
-    add(p) {
-      let node = {
-        p: AsyncResource.bind(p)
-      };
-      let promise = new Promise((res, rej) => {
-        node.res = res;
-        node.rej = rej;
-      });
+    add: (p) => new Promise((res, rej) => {
+      let node = { p: AsyncResource.bind(p), res, rej };
       if (head) {
-        tail.next = node;
-        tail = node;
+        tail = tail.next = node;
       } else {
-        head = tail = node;
+        tail = head = node;
       }
       size++;
       run();
-      return promise;
-    },
-    done: () => {
-      return new Promise((resolve) => {
-        resolveDonePromise = resolve;
-        if (!size) {
-          resolveDonePromise();
-        }
-      });
+    }),
+    done() {
+      if (donePromise) {
+        return donePromise;
+      }
+      let np = new Promise((resolve) => resolveDonePromise = resolve);
+      if (size) {
+        donePromise = np;
+      } else {
+        resolveDonePromise();
+      }
+      return np;
     },
     clear() {
       head = tail = null;
