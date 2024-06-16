@@ -6,7 +6,7 @@
 
 [![File Size][size-image]](https://github.com/henrygd/queue/blob/main/dist/index.min.js) [![MIT license][license-image]][license-url] [![JSR Score 100%](https://jsr.io/badges/@henrygd/queue/score)](https://jsr.io/@henrygd/queue)
 
-Tiny async queue with concurrency control. Like `p-limit` or `fastq` but smaller and faster. See [comparisons and benchmarks](#comparisons-and-benchmarks) below.
+Tiny async queue with concurrency control. Like `p-limit` or `fastq`, but smaller and faster. See [comparisons and benchmarks](#comparisons-and-benchmarks) below.
 
 Works with: <img alt="browsers" title="This package works with browsers." height="16px" src="https://jsr.io/logos/browsers.svg" /> <img alt="Deno" title="This package works with Deno." height="16px" src="https://jsr.io/logos/deno.svg" /> <img alt="Node.js" title="This package works with Node.js" height="16px" src="https://jsr.io/logos/node.svg" /> <img alt="Cloudflare Workers" title="This package works with Cloudflare Workers." height="16px" src="https://jsr.io/logos/cloudflare-workers.svg" /> <img alt="Bun" title="This package works with Bun." height="16px" src="https://jsr.io/logos/bun.svg" />
 
@@ -85,25 +85,37 @@ queue.size(): number
 
 Each operation adds 1,000 async functions to the queue and waits for them to resolve. The function just increments a counter.[^benchmark]
 
-This test was run in Chromium. Chrome, Edge, and Opera are the same. Firefox and Safari are slower across the board, with `@henrygd/queue` edging out `promise-queue`, then a gap back to `fastq` and `async.queue`.
+This test was run in Chromium. Chrome and Edge are the same. Firefox and Safari are slower and closer, with `@henrygd/queue` edging out `promise-queue`, then a small gap to `fastq`.
 
-You can run or tweak for yourself here: https://jsbm.dev/uwTSZlrRs9vhz
+You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 
-![@henrygd/queue - 9,905 Ops/s. promise-queue - 5,335 Ops/s. fastq - 4,270 Ops/s. async.queue - 3,811 Ops/s. p-limit - 1,000 Ops/s. queue - 686 Ops/s](https://henrygd-assets.b-cdn.net/queue/bench-browser.png)
+![@henrygd/queue - 10,608 Ops/s. fastq - 6,286 Ops/s. promise-queue - 5,670 Ops/s. async.queue - 3,960 Ops/s. p-limit - 1,070 Ops/s. queue - 726 Ops/s](https://henrygd-assets.b-cdn.net/queue/bench-browser.png?a)
 
 ### Node.js benchmarks
 
-Same test as the browser benchmark, but uses 5,000 async functions instead of 1,000.
+Same tests as the browser benchmark, but uses 5,000 async functions instead of 1,000.
 
-I have no idea what's going on with `p-limit` in Node. The same test with Bun puts it just behind `queue`.
+`p-limit` is very slow in Node because it uses `AsyncResource.bind` on every run, which seems to be a lot slower in Node than in Bun.
 
 **Ryzen 7 6800H | 32GB RAM**
 
-![@henrygd/queue - 1.61x faster than promise-queue. 2.34x than fastq. 3.49x than async.queue. 4.46x than queue. 72.39x than p-limit.](https://henrygd-assets.b-cdn.net/queue/benchmark-node.png)
+![@henrygd/queue - 1.61x faster than promise-queue. 1.83x than fastq. 3.52x than async.queue. 4.67x than queue. 68x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-node-6800.png)
 
 **Ryzen 5 4500U | 8GB RAM**
 
-![@henrygd/queue - 1.63x faster than promise-queue. 2.27x than fastq. 3.53x than async.queue. 12.63x than queue. 72.39x than p-limit.](https://henrygd-assets.b-cdn.net/queue/benchmark-node-4500u.png)
+![@henrygd/queue - 1.67x faster than promise-queue. 1.84 than fastq. 3.36x than async.queue. 13.22x than queue. 61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-node-4500.png)
+
+### Bun benchmark
+
+Same tests as Node.
+
+**Ryzen 7 6800H | 32GB RAM**
+
+![@henrygd/queue -  1.24x than fastq. 1.32x faster than promise-queue. 2.36x than async.queue. 3.96x than queue. 4.55x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-bun-6800.png)
+
+**Ryzen 5 4500U | 8GB RAM**
+
+![@henrygd/queue - 1.33x than fastq. 1.35x faster than promise-queue. 2.17x than async.queue. 10.14x than queue. 4.61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-bun-4500.png)
 
 ### Cloudflare Workers benchmark
 
@@ -113,12 +125,12 @@ This was run using [Wrangler](https://developers.cloudflare.com/workers/get-star
 
 | Library        | Requests/sec | Total (sec) | Average | Slowest |
 | :------------- | :----------- | :---------- | :------ | :------ |
-| @henrygd/queue | 622.7809     | 1.6057      | 0.0786  | 0.1155  |
-| promise-queue  | 324.8053     | 3.0788      | 0.1512  | 0.2174  |
-| async.queue    | 203.9315     | 4.9036      | 0.2408  | 0.3450  |
-| fastq          | 184.0524     | 5.4332      | 0.2670  | 0.3546  |
-| queue          | 86.4867      | 11.5625     | 0.5672  | 0.7636  |
-| p-limit        | 67.5275      | 14.8088     | 0.7274  | 1.0657  |
+| @henrygd/queue | 660.3245     | 1.5144      | 0.0744  | 0.1097  |
+| promise-queue  | 349.1807     | 2.8638      | 0.1408  | 0.1947  |
+| fastq          | 323.8708     | 3.0877      | 0.1514  | 0.2053  |
+| async.queue    | 199.7961     | 5.0051      | 0.2458  | 0.3492  |
+| queue          | 84.9245      | 11.7752     | 0.5784  | 0.8502  |
+| p-limit        | 67.6111      | 14.7905     | 0.7260  | 0.9606  |
 
 ## Real world examples
 
