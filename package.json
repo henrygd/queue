@@ -32,7 +32,8 @@
 		"test:deno:dist": "DIST=true deno test test/deno-test.ts --allow-env",
 		"test:deno:dev": "deno test test/deno-test.ts --allow-env",
 		"bench": "node bench/bench.js",
-		"bench:bun": "bun run bench/bench.ts"
+		"bench:bun": "bun run bench/bench.ts",
+		"bench:deno": "deno run --allow-sys --allow-env bench/bench-deno.ts"
 	},
 	"keywords": [
 		"promise",

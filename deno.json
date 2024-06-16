@@ -3,7 +3,9 @@
 	"version": "1.0.3",
 	"exports": "./index.ts",
 	"imports": {
-		"async_hooks": "node:async_hooks"
+		"async_hooks": "node:async_hooks",
+		"mitata": "npm:mitata",
+		"os": "node:os"
 	},
 	"lint": {
 		"include": ["test/deno-test.ts"]
