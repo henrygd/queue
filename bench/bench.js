@@ -1,5 +1,5 @@
 import { run, bench, baseline } from 'mitata'
-
+import { availableParallelism } from 'os'
 import { newQueue } from '../dist/index.js'
 import pLimit from 'p-limit'
 import pq from 'promise-queue'
@@ -15,7 +15,7 @@ const limit = pLimit(concurrency)
 const promiseQueue = new pq(concurrency)
 const q = new Queue({ results: [], concurrency })
 const aQueue = asyncQueue(async (task) => await task(), concurrency)
-const fqQueue = fastq.promise(async (task) => await task(), concurrency)
+const fqQueue = fastq.promise((task) => task(), concurrency)
 
 function checkEqual(a, b) {
 	if (a !== b) {
@@ -31,7 +31,6 @@ baseline('@henrygd/queue', async () => {
 		queue.add(async () => j++)
 	}
 	await queue.done()
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 
@@ -44,7 +43,6 @@ bench('promise-queue', async () => {
 		jobs.push(promiseQueue.add(async () => j++))
 	}
 	await Promise.all(jobs)
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 
@@ -56,7 +54,6 @@ bench('fastq', async () => {
 		fqQueue.push(async () => j++)
 	}
 	await fqQueue.drained()
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 
@@ -68,7 +65,6 @@ bench('async.queue', async () => {
 		aQueue.push(async () => j++)
 	}
 	await aQueue.drain()
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 bench('queue', async () => {
@@ -79,7 +75,6 @@ bench('queue', async () => {
 		q.push(async () => j++)
 	}
 	await q.start()
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 bench('p-limit', async () => {
@@ -91,21 +86,25 @@ bench('p-limit', async () => {
 		jobs.push(limit(async () => j++))
 	}
 	await Promise.all(jobs)
-	// make sure all promises resolved
 	checkEqual(i, j)
 })
 
-// don't need to warm up on node apparently
-// await run({
-// 	silent: true,
-// })
-// loops = 5_000
+// warm up
+// async function warmUp() {
+// 	const cpuCount = availableParallelism()
+// 	const start = performance.now()
+// 	const warmQueue = newQueue(cpuCount)
+// 	for (let i = 0; i < cpuCount; i++) {
+// 		warmQueue.add(async () => {
+// 			let j = 0
+// 			while (performance.now() - start < 1000) {
+// 				j = Math.cbrt(Math.random() * 500)
+// 			}
+// 			return j
+// 		})
+// 	}
+// 	await warmQueue.done()
+// }
 
-await run({
-	silent: false, // enable/disable stdout output
-	avg: true, // enable/disable avg column (default: true)
-	json: false, // enable/disable json output (default: false)
-	colors: true, // enable/disable colors (default: true)
-	min_max: true, // enable/disable min/max column (default: true)
-	percentiles: true, // enable/disable percentiles column (default: true)
-})
+// await warmUp()
+await run()
