@@ -15,16 +15,18 @@
 	"exports": {
 		".": {
 			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
 			"types": "./dist/index.d.ts"
 		},
 		"./async-storage": {
 			"import": "./dist/index.async-storage.js",
+			"require": "./dist/index.async-storage.cjs",
 			"types": "./dist/index.d.ts"
 		}
 	},
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly; ls -l dist",
+		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly > /dev/null; ls -l dist/index.min.js",
 		"test": "bun run test:dev && bun test:dist",
 		"test:dev": "bun test test/bun.test.ts",
 		"test:dist": "DIST=true bun test test/bun.test.ts",
