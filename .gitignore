@@ -6,3 +6,4 @@ jsr.json
 deno.lock
 .vscode
 bun.lockdb
+playground.ts
