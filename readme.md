@@ -72,14 +72,14 @@ queue.size(): number
 
 ## Comparisons and benchmarks
 
-| Library                                                         | Version | Bundle size (B) | Weekly downloads    |
-| :-------------------------------------------------------------- | :------ | :-------------- | :------------------ |
-| @henrygd/queue                                                  | 1.0.3   | 330             | probably only me :) |
-| [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973         |
-| [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627          |
-| [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355          |
-| [queue](https://github.com/jessetane/queue)                     | 7.0.0   | 2,840           | 4,259,101           |
-| [promise-queue](https://github.com/promise-queue/promise-queue) | 2.2.5   | 2,200           | 1,092,431           |
+| Library                                                         | Version | Bundle size (B) | Weekly downloads |
+| :-------------------------------------------------------------- | :------ | :-------------- | :--------------- |
+| @henrygd/queue                                                  | 1.0.3   | 330             | dozens :)        |
+| [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973      |
+| [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627       |
+| [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355       |
+| [queue](https://github.com/jessetane/queue)                     | 7.0.0   | 2,840           | 4,259,101        |
+| [promise-queue](https://github.com/promise-queue/promise-queue) | 2.2.5   | 2,200           | 1,092,431        |
 
 ### Browser benchmark
 
