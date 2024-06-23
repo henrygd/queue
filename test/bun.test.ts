@@ -264,4 +264,5 @@ async function testRejections(createQueue: CreateQueue) {
 
 	expect(results).toEqual([1, 3])
 	expect(errors).toEqual(['Promise 2 failed', 'Promise 4 failed'])
+	expect(queue.size()).toBe(0)
 }
