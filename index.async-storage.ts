@@ -22,7 +22,7 @@ type Node<T> = {
 /** Queue interface */
 interface Queue {
 	/** Add an async function / promise wrapper to the queue */
-	add<T>(promiseFunction: () => Promise<T>): Promise<T>
+	add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>
 	/** Returns a promise that resolves when the queue is empty */
 	done(): Promise<void>
 	/** Empties the queue (active promises are not cancelled) */
@@ -42,8 +42,8 @@ interface Queue {
 export let newQueue = (concurrency: number): Queue => {
 	let active = 0
 	let size = 0
-	let head: Node<Promise<any>> | undefined | null
-	let tail: Node<Promise<any>> | undefined | null
+	let head: Node<PromiseLike<any>> | undefined | null
+	let tail: Node<PromiseLike<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 	let donePromise: Promise<void> | void
 	let Promize = Promise
@@ -58,17 +58,19 @@ export let newQueue = (concurrency: number): Queue => {
 	}
 
 	let run = () => {
-		if (!head || active >= concurrency) {
-			return
+		if (head && active < concurrency) {
+			active++
+			let curHead = head
+			head = head.next
+			curHead.p().then(
+				(v) => (curHead.res(v), afterRun()),
+				(e) => (curHead.rej(e), afterRun())
+			)
 		}
-		active++
-		let curHead = head
-		head = head.next
-		curHead.p().then(curHead.res, curHead.rej).then(afterRun)
 	}
 
 	return {
-		add: <T>(p: () => Promise<T>) =>
+		add: <T>(p: () => PromiseLike<T>) =>
 			new Promize((res, rej) => {
 				let node = { p: AsyncResource.bind(p), res, rej }
 				if (head) {
