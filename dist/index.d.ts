@@ -1,7 +1,7 @@
 /** Queue interface */
 interface Queue {
     /** Add an async function / promise wrapper to the queue */
-    add<T>(promiseFunction: () => Promise<T>): Promise<T>;
+    add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>;
     /** Returns a promise that resolves when the queue is empty */
     done(): Promise<void>;
     /** Empties the queue (active promises are not cancelled) */

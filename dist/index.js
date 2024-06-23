@@ -15,13 +15,21 @@ let newQueue = (concurrency) => {
     }
   };
   let run = () => {
-    if (!head || active >= concurrency) {
-      return;
+    if (head && active < concurrency) {
+      active++;
+      let curHead = head;
+      head = head.a;
+      curHead.p().then(
+        (v) => {
+          curHead.b(v);
+          afterRun();
+        },
+        (e) => {
+          curHead.c(e);
+          afterRun();
+        }
+      );
     }
-    active++;
-    let curHead = head;
-    head = head.a;
-    curHead.p().then(curHead.b, curHead.c).then(afterRun);
   };
   return {
     add: (p) => new Promize((res, rej) => {
