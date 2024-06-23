@@ -1,71 +1,73 @@
 {
-	"name": "@henrygd/queue",
-	"version": "1.0.4",
-	"license": "MIT",
-	"type": "module",
-	"description": "Tiny async queue with concurrency control. Like p-limit or fastq, but smaller, faster, and easier.",
-	"author": "Hank Dollman <hank@henrygd.me> (https://henrygd.me)",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/henrygd/queue.git"
-	},
-	"bugs": {
-		"url": "https://github.com/henrygd/queue/issues"
-	},
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs",
-			"types": "./dist/index.d.ts"
-		},
-		"./async-storage": {
-			"import": "./dist/index.async-storage.js",
-			"require": "./dist/index.async-storage.cjs",
-			"types": "./dist/index.d.ts"
-		}
-	},
-	"types": "./dist/index.d.ts",
-	"scripts": {
-		"build": "bun run build.ts && tsc -d index.ts --outDir dist --emitDeclarationOnly > /dev/null; ls -l dist/index.min.js",
-		"test": "bun run test:dev && bun test:dist",
-		"test:dev": "bun test test/bun.test.ts",
-		"test:dist": "DIST=true bun test test/bun.test.ts",
-		"test:deno": "bun run test:deno:dev && bun run test:deno:dist",
-		"test:deno:dist": "DIST=true deno test test/deno-test.ts --allow-env",
-		"test:deno:dev": "deno test test/deno-test.ts --allow-env",
-		"bench": "node bench/bench.js",
-		"bench:bun": "bun run bench/bench.ts",
-		"bench:deno": "deno run --allow-sys --allow-env bench/bench-deno.ts"
-	},
-	"keywords": [
-		"promise",
-		"promises",
-		"limit",
-		"limited",
-		"concurrency",
-		"throttle",
-		"rate",
-		"batch",
-		"task",
-		"queue",
-		"async",
-		"await",
-		"async-queue",
-		"promise-queue",
-		"fast",
-		"worker"
-	],
-	"devDependencies": {
-		"@types/async": "^3.2.24",
-		"@types/bun": "^1.1.3",
-		"async": "^3.2.5",
-		"esbuild": "^0.21.4",
-		"fastq": "^1.17.1",
-		"mitata": "^0.1.11",
-		"neo-async": "^2.6.2",
-		"p-limit": "^5.0.0",
-		"promise-queue": "^2.2.5",
-		"queue": "^7.0.0",
-		"typescript": "^5.4.5"
-	}
+  "name": "@henrygd/queue",
+  "version": "1.0.4",
+  "license": "MIT",
+  "type": "module",
+  "description": "Tiny async queue with concurrency control. Like p-limit or fastq, but smaller and faster.",
+  "author": "Hank Dollman <hank@henrygd.me> (https://henrygd.me)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henrygd/queue.git"
+  },
+  "bugs": {
+    "url": "https://github.com/henrygd/queue/issues"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./async-storage": {
+      "import": "./dist/index.async-storage.js",
+      "require": "./dist/index.async-storage.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "bun run build.ts && ls -l dist/index.min.js && bun run generate-types",
+    "build:skip-types": "bun run build.ts && ls -l dist/index.min.js",
+    "generate-types": "tsc -d index.ts --outDir dist --emitDeclarationOnly > /dev/null",
+    "test": "bun run test:dev && bun test:dist",
+    "test:dev": "bun test test/bun.test.ts",
+    "test:dist": "DIST=true bun test test/bun.test.ts",
+    "test:deno": "bun run test:deno:dev && bun run test:deno:dist",
+    "test:deno:dist": "DIST=true deno test test/deno-test.ts --allow-env",
+    "test:deno:dev": "deno test test/deno-test.ts --allow-env",
+    "bench": "node bench/bench.js",
+    "bench:bun": "bun run bench/bench.js",
+    "bench:deno": "deno run --allow-env --allow-hrtime bench/bench.js",
+    "bench:alt": "node bench/bench-alt.js",
+    "bench:alt:bun": "bun run bench/bench-alt.js"
+  },
+  "keywords": [
+    "promise",
+    "promises",
+    "limit",
+    "limited",
+    "concurrency",
+    "throttle",
+    "rate",
+    "batch",
+    "task",
+    "queue",
+    "async",
+    "await",
+    "async-queue",
+    "promise-queue",
+    "fast",
+    "worker"
+  ],
+  "devDependencies": {
+    "@types/bun": "^1.1.3",
+    "async": "^3.2.5",
+    "esbuild": "^0.21.4",
+    "fastq": "^1.17.1",
+    "mitata": "^0.1.11",
+    "p-limit": "^5.0.0",
+    "promise-queue": "^2.2.5",
+    "queue": "^7.0.0",
+    "typescript": "^5.4.5"
+  }
 }

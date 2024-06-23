@@ -59,7 +59,7 @@ console.log(res.ok, res.status, res.headers)
 
 ```ts
 /** Add an async function / promise wrapper to the queue */
-queue.add<T>(promiseFunction: () => Promise<T>): Promise<T>
+queue.add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>
 /** Returns a promise that resolves when the queue is empty */
 queue.done(): Promise<void>
 /** Empties the queue (active promises are not cancelled) */
@@ -74,16 +74,20 @@ queue.size(): number
 
 | Library                                                         | Version | Bundle size (B) | Weekly downloads |
 | :-------------------------------------------------------------- | :------ | :-------------- | :--------------- |
-| @henrygd/queue                                                  | 1.0.3   | 330             | dozens :)        |
+| @henrygd/queue                                                  | 1.0.5   | 339             | dozens :)        |
 | [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973      |
 | [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627       |
 | [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355       |
 | [queue](https://github.com/jessetane/queue)                     | 7.0.0   | 2,840           | 4,259,101        |
 | [promise-queue](https://github.com/promise-queue/promise-queue) | 2.2.5   | 2,200           | 1,092,431        |
 
-### Browser benchmark
+### Note on benchmarks
 
-Each operation adds 1,000 async functions to the queue and waits for them to resolve. The function just increments a counter.[^benchmark]
+Each operation tests how quickly the queue can resolve 1,000 (browser) or 5,000 (all others) async functions. The function just increments a counter.[^benchmark]
+
+All libraries run the exact same test, so `p-limit` and `promise-queue`, which lack a promise that resolves when the queue is empty, are not penalized by having to use `Promise.all`.
+
+## Browser benchmark
 
 This test was run in Chromium. Chrome and Edge are the same. Firefox and Safari are slower and closer, with `@henrygd/queue` edging out `promise-queue`, then a small gap to `fastq`.
 
@@ -91,46 +95,71 @@ You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 
 ![@henrygd/queue - 10,608 Ops/s. fastq - 6,286 Ops/s. promise-queue - 5,670 Ops/s. async.queue - 3,960 Ops/s. p-limit - 1,070 Ops/s. queue - 726 Ops/s](https://henrygd-assets.b-cdn.net/queue/bench-browser.png?a)
 
-### Node.js benchmarks
+## Node.js benchmarks
 
-Same tests as the browser benchmark, but uses 5,000 async functions instead of 1,000.
+`p-limit` is very slow because it uses `AsyncResource.bind` on every run, which is much faster in Bun than in Node or Deno.
 
-`p-limit` is very slow in Node because it uses `AsyncResource.bind` on every run, which seems to be a lot slower in Node than in Bun.
+**Ryzen 7 6800H | 32GB RAM | Node.js 22.3.0**
 
-**Ryzen 7 6800H | 32GB RAM**
+| Library        | Speed  | Average | Fastest | Slowest |
+| :------------- | :----- | :------ | :------ | ------- |
+| @henrygd/queue | 1.00x  | 0.6292  | 0.4143  | 1.3691  |
+| fastq          | 1.40x  | 0.8790  | 0.6847  | 2.0978  |
+| promise-queue  | 1.53x  | 0.9610  | 0.7953  | 2.4936  |
+| async.queue    | 3.18x  | 2.0002  | 1.3959  | 3.4056  |
+| queue          | 4.75x  | 2.9906  | 2.2713  | 24.8368 |
+| p-limit        | 58.31x | 36.6929 | 32.6756 | 55.5272 |
 
-![@henrygd/queue - 1.61x faster than promise-queue. 1.83x than fastq. 3.52x than async.queue. 4.67x than queue. 68x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-node-6800.png)
-
-**Ryzen 5 4500U | 8GB RAM**
+**Ryzen 5 4500U | 8GB RAM | Node.js 22.3.0**
 
 ![@henrygd/queue - 1.67x faster than promise-queue. 1.84 than fastq. 3.36x than async.queue. 13.22x than queue. 61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-node-4500.png)
 
-### Bun benchmark
+## Deno benchmarks
 
-Same tests as Node.
+**Ryzen 7 6800H | 32GB RAM | Deno 1.44.4**
 
-**Ryzen 7 6800H | 32GB RAM**
+| Library        | Speed  | Average | Fastest | Slowest |
+| :------------- | :----- | :------ | :------ | ------- |
+| @henrygd/queue | 1.00x  | 0.4995  | 0.3335  | 1.1774  |
+| fastq          | 1.42x  | 0.7116  | 0.5688  | 1.3907  |
+| promise-queue  | 1.50x  | 0.7476  | 0.6369  | 1.6997  |
+| async.queue    | 3.21x  | 1.6022  | 1.1333  | 2.8973  |
+| queue          | 5.18x  | 2.5867  | 1.9987  | 16.0821 |
+| p-limit        | 21.80x | 10.8889 | 9.9022  | 22.9115 |
 
-![@henrygd/queue -  1.24x than fastq. 1.32x faster than promise-queue. 2.36x than async.queue. 3.96x than queue. 4.55x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-bun-6800.png)
+## Bun benchmarks
 
-**Ryzen 5 4500U | 8GB RAM**
+**Ryzen 7 6800H | 32GB RAM | Bun 1.1.16**
+
+| Library        | Speed | Average | Fastest | Slowest |
+| :------------- | :---- | :------ | :------ | ------- |
+| @henrygd/queue | 1.00x | 0.8561  | 0.6226  | 2.7538  |
+| promise-queue  | 1.11x | 0.9471  | 0.7473  | 2.2621  |
+| fastq          | 1.37x | 1.1739  | 0.9771  | 2.6227  |
+| async.queue    | 2.78x | 2.3767  | 1.9849  | 4.4396  |
+| queue          | 4.45x | 3.8085  | 2.706   | 9.9144  |
+| p-limit        | 4.87x | 4.1657  | 3.6071  | 16.5183 |
+
+**Ryzen 5 4500U | 8GB RAM | Bun 1.1.16**
 
 ![@henrygd/queue - 1.33x than fastq. 1.35x faster than promise-queue. 2.17x than async.queue. 10.14x than queue. 4.61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-bun-4500.png)
 
-### Cloudflare Workers benchmark
+## Cloudflare Workers benchmark
 
-Same test as above, with 5,000 functions, and uses [oha](https://github.com/hatoo/oha) to make 1,000 requests to each worker.
+Uses [oha](https://github.com/hatoo/oha) to make 1,000 requests to each worker. Measures creation time in addition to throughput, as a new queue is made for each request.
 
-This was run using [Wrangler](https://developers.cloudflare.com/workers/get-started/guide/) on a Ryzen 7 6800H laptop. Wrangler uses the same [workerd](https://github.com/cloudflare/workerd) runtime as workers deployed to Cloudflare, so the relative difference should be accurate. Here's the [repository for this benchmark](https://github.com/henrygd/async-queue-wrangler-benchmark).
+This was run locally using [Wrangler](https://developers.cloudflare.com/workers/get-started/guide/) on a Ryzen 7 6800H laptop. Wrangler uses the same [workerd](https://github.com/cloudflare/workerd) runtime as workers deployed to Cloudflare, so the relative difference should be accurate. Here's the [repository for this benchmark](https://github.com/henrygd/async-queue-wrangler-benchmark).
 
 | Library        | Requests/sec | Total (sec) | Average | Slowest |
 | :------------- | :----------- | :---------- | :------ | :------ |
-| @henrygd/queue | 660.3245     | 1.5144      | 0.0744  | 0.1097  |
-| promise-queue  | 349.1807     | 2.8638      | 0.1408  | 0.1947  |
-| fastq          | 323.8708     | 3.0877      | 0.1514  | 0.2053  |
-| async.queue    | 199.7961     | 5.0051      | 0.2458  | 0.3492  |
-| queue          | 84.9245      | 11.7752     | 0.5784  | 0.8502  |
-| p-limit        | 67.6111      | 14.7905     | 0.7260  | 0.9606  |
+| @henrygd/queue | 790.4110     | 1.2652      | 0.0622  | 0.0941  |
+| promise-queue  | 647.2809     | 1.5449      | 0.0759  | 0.1149  |
+| fastq          | 336.7031     | 3.0877      | 0.1459  | 0.2080  |
+| async.queue    | 198.9986     | 5.0252      | 0.2468  | 0.3544  |
+| queue          | 85.6483      | 11.6757     | 0.5732  | 0.7629  |
+| p-limit        | 77.7434      | 12.8628     | 0.6316  | 0.9585  |
+
+Worth noting that `promise-queue` shot up by nearly 300 req/s after I made the tests uniform and removed its use of `Promise.all` to wait for the queue to be done. I ended up adding a check in every function, which is a bit convoluted but works. Much easier when you have the option to use a promise like `queue.done()`.
 
 ## Real world examples
 
