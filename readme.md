@@ -10,13 +10,6 @@ Tiny async queue with concurrency control. Like `p-limit` or `fastq`, but smalle
 
 Works with: <img alt="browsers" title="This package works with browsers." height="16px" src="https://jsr.io/logos/browsers.svg" /> <img alt="Deno" title="This package works with Deno." height="16px" src="https://jsr.io/logos/deno.svg" /> <img alt="Node.js" title="This package works with Node.js" height="16px" src="https://jsr.io/logos/node.svg" /> <img alt="Cloudflare Workers" title="This package works with Cloudflare Workers." height="16px" src="https://jsr.io/logos/cloudflare-workers.svg" /> <img alt="Bun" title="This package works with Bun." height="16px" src="https://jsr.io/logos/bun.svg" />
 
-<!--
-## Installation
-
-```bash
-npm install @henrygd/queue
-``` -->
-
 ## Usage
 
 Create a queue with the `newQueue` function. Then add async functions - or promise returning functions - to your queue with the `add` method.
@@ -99,7 +92,7 @@ You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 
 `p-limit` is very slow because it uses `AsyncResource.bind` on every run, which is much faster in Bun than in Node or Deno.
 
-**Ryzen 7 6800H | 32GB RAM | Node.js 22.3.0**
+**Ryzen 7 6800H | 32GB RAM | Node.js 22.3.0 | x64 Linux**
 
 | Library        | Speed  | Average | Fastest | Slowest |
 | :------------- | :----- | :------ | :------ | ------- |
@@ -110,13 +103,20 @@ You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 | queue          | 4.75x  | 2.9906  | 2.2713  | 24.8368 |
 | p-limit        | 58.31x | 36.6929 | 32.6756 | 55.5272 |
 
-**Ryzen 5 4500U | 8GB RAM | Node.js 22.3.0**
+**Ryzen 5 4500U | 8GB RAM | Node.js 22.3.0 | x64 Linux**
 
-![@henrygd/queue - 1.67x faster than promise-queue. 1.84 than fastq. 3.36x than async.queue. 13.22x than queue. 61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-node-4500.png)
+| Library        | Speed  | Average | Fastest | Slowest  |
+| :------------- | :----- | :------ | :------ | -------- |
+| @henrygd/queue | 1.00x  | 1.4464  | 0.8649  | 4.0576   |
+| promise-queue  | 1.51x  | 2.1867  | 1.8211  | 6.4455   |
+| fastq          | 1.55x  | 2.2421  | 1.7523  | 5.9954   |
+| async.queue    | 3.14x  | 4.5409  | 3.2586  | 7.721    |
+| queue          | 13.92x | 20.133  | 18.6923 | 51.2517  |
+| p-limit        | 58.93x | 85.229  | 73.2169 | 208.5444 |
 
 ## Deno benchmarks
 
-**Ryzen 7 6800H | 32GB RAM | Deno 1.44.4**
+**Ryzen 7 6800H | 32GB RAM | Deno 1.44.4 | x64 Linux**
 
 | Library        | Speed  | Average | Fastest | Slowest |
 | :------------- | :----- | :------ | :------ | ------- |
@@ -127,9 +127,20 @@ You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 | queue          | 5.18x  | 2.5867  | 1.9987  | 16.0821 |
 | p-limit        | 21.80x | 10.8889 | 9.9022  | 22.9115 |
 
+**Ryzen 5 4500U | 8GB RAM | Deno 1.44.4 | x64 Linux**
+
+| Library        | Speed  | Average | Fastest | Slowest |
+| :------------- | :----- | :------ | :------ | ------- |
+| @henrygd/queue | 1.00x  | 1.1727  | 0.7361  | 2.4714  |
+| fastq          | 1.45x  | 1.6971  | 1.2685  | 4.2022  |
+| promise-queue  | 1.49x  | 1.7477  | 1.4786  | 3.1661  |
+| async.queue    | 3.23x  | 3.7844  | 2.6141  | 5.8011  |
+| queue          | 5.21x  | 6.1074  | 4.6434  | 64.4937 |
+| p-limit        | 23.12x | 27.1159 | 25.0289 | 49.0373 |
+
 ## Bun benchmarks
 
-**Ryzen 7 6800H | 32GB RAM | Bun 1.1.16**
+**Ryzen 7 6800H | 32GB RAM | Bun 1.1.16 | x64 Linux**
 
 | Library        | Speed | Average | Fastest | Slowest |
 | :------------- | :---- | :------ | :------ | ------- |
@@ -140,9 +151,16 @@ You can run or tweak for yourself here: https://jsbm.dev/8FxNa8pSMHCX2
 | queue          | 4.45x | 3.8085  | 2.706   | 9.9144  |
 | p-limit        | 4.87x | 4.1657  | 3.6071  | 16.5183 |
 
-**Ryzen 5 4500U | 8GB RAM | Bun 1.1.16**
+**Ryzen 5 4500U | 8GB RAM | Bun 1.1.16 | x64 Linux**
 
-![@henrygd/queue - 1.33x than fastq. 1.35x faster than promise-queue. 2.17x than async.queue. 10.14x than queue. 4.61x than p-limit.](https://henrygd-assets.b-cdn.net/queue/bench-bun-4500.png)
+| Library        | Speed  | Average | Fastest | Slowest |
+| :------------- | :----- | :------ | :------ | ------- |
+| @henrygd/queue | 1.00x  | 1.8486  | 1.4478  | 5.438   |
+| promise-queue  | 1.18x  | 2.1856  | 1.8773  | 5.3354  |
+| fastq          | 1.51x  | 2.7949  | 2.4237  | 5.6265  |
+| async.queue    | 2.63x  | 4.8638  | 4.0598  | 14.2662 |
+| p-limit        | 4.99x  | 9.2239  | 8.2851  | 19.6944 |
+| queue          | 11.88x | 21.953  | 18.9503 | 43.5050 |
 
 ## Cloudflare Workers benchmark
 
