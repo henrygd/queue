@@ -1,6 +1,6 @@
 {
 	"name": "@henrygd/queue",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"exports": "./index.ts",
 	"imports": {
 		"async_hooks": "node:async_hooks",
