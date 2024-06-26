@@ -20,6 +20,7 @@ __export(async_queue_exports, {
   newQueue: () => newQueue
 });
 module.exports = __toCommonJS(async_queue_exports);
+let Promize = Promise;
 let newQueue = (concurrency) => {
   let active = 0;
   let size = 0;
@@ -27,7 +28,6 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
-  let Promize = Promise;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -42,20 +42,18 @@ let newQueue = (concurrency) => {
       let curHead = head;
       head = head.a;
       curHead.p().then(
-        (v) => {
-          curHead.b(v);
-          afterRun();
-        },
-        (e) => {
-          curHead.c(e);
-          afterRun();
-        }
+        (v) => (curHead.b(v), afterRun()),
+        (e) => (curHead.c(e), afterRun())
       );
     }
   };
   return {
-    add: (p) => new Promize((res, rej) => {
-      let node = { p, b: res, c: rej };
+    add(p) {
+      let node = { p };
+      let promise = new Promize((res, rej) => {
+        node.b = res;
+        node.c = rej;
+      });
       if (head) {
         tail = tail.a = node;
       } else {
@@ -63,7 +61,8 @@ let newQueue = (concurrency) => {
       }
       size++;
       run();
-    }),
+      return promise;
+    },
     done: () => {
       if (!size) {
         return Promize.resolve();

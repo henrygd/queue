@@ -27,6 +27,7 @@ __export(index_async_storage_exports, {
 });
 module.exports = __toCommonJS(index_async_storage_exports);
 var import_async_hooks = require("async_hooks");
+let Promize = Promise;
 let newQueue = (concurrency) => {
   let active = 0;
   let size = 0;
@@ -34,7 +35,6 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
-  let Promize = Promise;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -55,8 +55,12 @@ let newQueue = (concurrency) => {
     }
   };
   return {
-    add: (p) => new Promize((res, rej) => {
-      let node = { p: import_async_hooks.AsyncResource.bind(p), res, rej };
+    add(p) {
+      let node = { p: import_async_hooks.AsyncResource.bind(p) };
+      let promise = new Promize((res, rej) => {
+        node.res = res;
+        node.rej = rej;
+      });
       if (head) {
         tail = tail.next = node;
       } else {
@@ -64,7 +68,8 @@ let newQueue = (concurrency) => {
       }
       size++;
       run();
-    }),
+      return promise;
+    },
     done: () => {
       if (!size) {
         return Promize.resolve();

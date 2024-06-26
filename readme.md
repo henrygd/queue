@@ -41,8 +41,8 @@ console.log('done')
 The return value of `queue.add` is the same as the return value of the supplied function.
 
 ```ts
-const res = await queue.add(() => fetch('https://pokeapi.co/api/v2/pokemon'))
-console.log(res.ok, res.status, res.headers)
+const response = await queue.add(() => fetch('https://pokeapi.co/api/v2/pokemon'))
+console.log(response.ok, response.status, response.headers)
 ```
 
 > [!TIP]
@@ -82,7 +82,7 @@ We check for completion inside the function so that `promise-queue` and `p-limit
 
 ## Browser benchmark
 
-This test was run in Chromium. Chrome and Edge are the same. Firefox and Safari are slower and closer, with `promise-queue` in second and `fastq` in third.
+This test was run in Chromium. Chrome and Edge are the same. Firefox and Safari are slower and closer, with `@henrygd/queue` just edging out `promise-queue`. I think both are hitting the upper limit of what those browsers will allow.
 
 You can run or tweak for yourself here: https://jsbm.dev/c5W1T8CzAw232
 

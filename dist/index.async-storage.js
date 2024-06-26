@@ -5,6 +5,7 @@
  * @module
  */
 import { AsyncResource } from "async_hooks";
+let Promize = Promise;
 let newQueue = (concurrency) => {
   let active = 0;
   let size = 0;
@@ -12,7 +13,6 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
-  let Promize = Promise;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -33,8 +33,12 @@ let newQueue = (concurrency) => {
     }
   };
   return {
-    add: (p) => new Promize((res, rej) => {
-      let node = { p: AsyncResource.bind(p), res, rej };
+    add(p) {
+      let node = { p: AsyncResource.bind(p) };
+      let promise = new Promize((res, rej) => {
+        node.res = res;
+        node.rej = rej;
+      });
       if (head) {
         tail = tail.next = node;
       } else {
@@ -42,7 +46,8 @@ let newQueue = (concurrency) => {
       }
       size++;
       run();
-    }),
+      return promise;
+    },
     done: () => {
       if (!size) {
         return Promize.resolve();
