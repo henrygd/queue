@@ -24,6 +24,9 @@ interface Queue {
 	size(): number
 }
 
+// this just saves a few bytes
+let Promize = Promise
+
 /**
  * Creates a new queue with the specified concurrency level.
  *
@@ -37,7 +40,6 @@ export let newQueue = (concurrency: number): Queue => {
 	let tail: Node<PromiseLike<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 	let donePromise: Promise<void> | void
-	let Promize = Promise
 
 	let afterRun = () => {
 		active--
@@ -61,17 +63,21 @@ export let newQueue = (concurrency: number): Queue => {
 	}
 
 	return {
-		add: <T>(p: () => PromiseLike<T>) =>
-			new Promize((res, rej) => {
-				let node = { p, res, rej }
-				if (head) {
-					tail = tail!.next = node
-				} else {
-					tail = head = node
-				}
-				size++
-				run()
-			}),
+		add<T>(p: () => PromiseLike<T>) {
+			let node = { p } as Node<PromiseLike<T>>
+			let promise = new Promize((res, rej) => {
+				node.res = res
+				node.rej = rej
+			})
+			if (head) {
+				tail = tail!.next = node
+			} else {
+				tail = head = node
+			}
+			size++
+			run()
+			return promise as Promise<T>
+		},
 		done: () => {
 			if (!size) {
 				return Promize.resolve()
