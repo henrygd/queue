@@ -84,9 +84,9 @@ We check for completion inside the function so that `promise-queue` and `p-limit
 
 This test was run in Chromium. Chrome and Edge are the same. Firefox and Safari are slower and closer, with `@henrygd/queue` just edging out `promise-queue`. I think both are hitting the upper limit of what those browsers will allow.
 
-You can run or tweak for yourself here: https://jsbm.dev/c5W1T8CzAw232
+You can run or tweak for yourself here: https://jsbm.dev/TKyOdie0sbpOh
 
-![@henrygd/queue - 13,665 Ops/s. fastq - 7,661 Ops/s. promise-queue - 7,650 Ops/s. async.queue - 4,060 Ops/s. p-limit - 1,067 Ops/s. queue - 721 Ops/s](https://henrygd-assets.b-cdn.net/queue/browser-bench.png)
+![@henrygd/queue - 13,665 Ops/s. fastq - 7,661 Ops/s. promise-queue - 7,650 Ops/s. async.queue - 4,060 Ops/s. p-limit - 1,067 Ops/s. queue - 721 Ops/s](https://henrygd-assets.b-cdn.net/queue/106/browser-benchmark.png)
 
 ## Node.js benchmarks
 
@@ -94,31 +94,31 @@ You can run or tweak for yourself here: https://jsbm.dev/c5W1T8CzAw232
 
 Ryzen 5 4500U | 8GB RAM | Node 22.3.0
 
-![@henrygd/queue - 1.7x faster than fastq. 1.82x promise-queue. 3.45x async.queue. 18.55x queue. 73x p-limit.](https://henrygd-assets.b-cdn.net/queue/node-4500u.png)
+![@henrygd/queue - 1.9x faster than fastq. 2.03x promise-queue. 3.86x async.queue. 20x queue. 86x p-limit.](https://henrygd-assets.b-cdn.net/queue/106/node-4500.png)
 
 Ryzen 7 6800H | 32GB RAM | Node 22.3.0
 
-![@henrygd/queue - 1.56x faster than fastq. 1.73x promise-queue. 3.31x async.queue. 5.68x queue. 77x p-limit.](https://henrygd-assets.b-cdn.net/queue/node-6800h.png)
+![@henrygd/queue - 1.9x faster than fastq. 2.01x promise-queue. 3.98x async.queue. 6.86x queue. 88x p-limit.](https://henrygd-assets.b-cdn.net/queue/106/node-6800h.png)
 
 ## Deno benchmarks
 
 Ryzen 5 4500U | 8GB RAM | Deno 1.44.4
 
-![@henrygd/queue - 1.66x faster than fastq. 1.79x promise-queue. 3.3x async.queue. 6x queue. 24x p-limit.](https://henrygd-assets.b-cdn.net/queue/deno-4500u.png)
+![@henrygd/queue - 1.9x faster than fastq. 2.01x promise-queue. 4.7x async.queue. 7x queue. 28x p-limit.](https://henrygd-assets.b-cdn.net/queue/106/deno-4500.png)
 
 Ryzen 7 6800H | 32GB RAM | Deno 1.44.4
 
-![@henrygd/queue - 1.6x faster than fastq. 1.71x promise-queue. 3.2x async.queue. 6.24x queue. 23x p-limit.](https://henrygd-assets.b-cdn.net/queue/deno-6800h.png)
+![@henrygd/queue - 1.82x faster than fastq. 1.91x promise-queue. 3.47x async.queue. 7x queue. 26x p-limit.](https://henrygd-assets.b-cdn.net/queue/106/deno-6800h.png)
 
 ## Bun benchmarks
 
-Ryzen 5 4500U | 8GB RAM | Bun 1.1.16
+Ryzen 5 4500U | 8GB RAM | Bun 1.1.17
 
-![@henrygd/queue - 1.32x faster than promise-queue. 1.58x fastq. 2.62x async.queue. 5.36x p-limit. 12.65x queue.](https://henrygd-assets.b-cdn.net/queue/bun-4500u.png)
+![@henrygd/queue - 1.25x faster than promise-queue. 1.66x fastq. 2.73x async.queue. 5.44x p-limit. 12x queue.](https://henrygd-assets.b-cdn.net/queue/106/bun-4500.png)
 
-Ryzen 7 6800H | 32GB RAM | Bun 1.1.16
+Ryzen 7 6800H | 32GB RAM | Bun 1.1.17
 
-![@henrygd/queue - 1.2x faster than promise-queue. 1.54x fastq. 2.76x async.queue. 5.45x p-limit. 5.83x queue.](https://henrygd-assets.b-cdn.net/queue/bun-6800h.png)
+![@henrygd/queue - 1.17x faster than promise-queue. 1.51x fastq. 2.53x async.queue. 5.25x p-limit. 5.39x queue.](https://henrygd-assets.b-cdn.net/queue/106/bun-6800h.png)
 
 ## Cloudflare Workers benchmark
 
