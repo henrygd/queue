@@ -67,7 +67,7 @@ queue.size(): number
 
 | Library                                                         | Version | Bundle size (B) | Weekly downloads |
 | :-------------------------------------------------------------- | :------ | :-------------- | :--------------- |
-| @henrygd/queue                                                  | 1.0.5   | 339             | dozens :)        |
+| @henrygd/queue                                                  | 1.0.6   | 355             | dozens :)        |
 | [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973      |
 | [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627       |
 | [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355       |
