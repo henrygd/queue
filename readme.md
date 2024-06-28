@@ -1,5 +1,5 @@
 [size-image]: https://img.shields.io/github/size/henrygd/queue/dist/index.min.js?style=flat
-[license-image]: https://img.shields.io/github/license/henrygd/bigger-picture?style=flat&color=%2349ac0c
+[license-image]: https://img.shields.io/github/license/henrygd/queue?style=flat&color=%2349ac0c
 [license-url]: /LICENSE
 
 # @henrygd/queue
@@ -135,9 +135,9 @@ This was run locally using [Wrangler](https://developers.cloudflare.com/workers/
 | queue          | 85.6483      | 11.6757     | 0.5732  | 0.7629  |
 | p-limit        | 77.7434      | 12.8628     | 0.6316  | 0.9585  |
 
-## Real world examples
+## Related
 
-[`henrygd/optimize`](https://github.com/henrygd/optimize) - Uses `@henrygd/queue` to parallelize image optimization jobs.
+[`@henrygd/semaphore`](https://github.com/henrygd/semaphore) - Fastest javascript inline semaphores and mutexes using async / await.
 
 ## License
 
