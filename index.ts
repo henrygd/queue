@@ -11,7 +11,7 @@ type Node<T> = {
 }
 
 /** Queue interface */
-interface Queue {
+export interface Queue {
 	/** Add an async function / promise wrapper to the queue */
 	add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>
 	/** Returns a promise that resolves when the queue is empty */

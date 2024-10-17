@@ -1,5 +1,5 @@
 /** Queue interface */
-interface Queue {
+export interface Queue {
     /** Add an async function / promise wrapper to the queue */
     add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>;
     /** Returns a promise that resolves when the queue is empty */
@@ -18,4 +18,3 @@ interface Queue {
  * @return {Queue} - The newly created queue.
  */
 export declare let newQueue: (concurrency: number) => Queue;
-export {};
