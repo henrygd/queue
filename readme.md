@@ -90,7 +90,7 @@ You can run or tweak for yourself here: https://jsbm.dev/TKyOdie0sbpOh
 
 ## Node.js benchmarks
 
-`p-limit` is very slow because it uses `AsyncResource.bind` on every run, which is much faster in Bun than in Node or Deno.
+> Note: `p-limit` 6.1.0 now places between `async.queue` and `queue` in Node and Deno.
 
 Ryzen 5 4500U | 8GB RAM | Node 22.3.0
 
@@ -101,6 +101,8 @@ Ryzen 7 6800H | 32GB RAM | Node 22.3.0
 ![@henrygd/queue - 1.9x faster than fastq. 2.01x promise-queue. 3.98x async.queue. 6.86x queue. 88x p-limit.](https://henrygd-assets.b-cdn.net/queue/106/node-6800h.png)
 
 ## Deno benchmarks
+
+> Note: `p-limit` 6.1.0 now places between `async.queue` and `queue` in Node and Deno.
 
 Ryzen 5 4500U | 8GB RAM | Deno 1.44.4
 
