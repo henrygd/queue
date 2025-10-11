@@ -47,8 +47,6 @@ const response = await queue.add(() =>
 console.log(response.ok, response.status, response.headers);
 ```
 
-### Batch operations
-
 `queue.all` is like `Promise.all` with concurrency control:
 
 ```ts
