@@ -70,7 +70,7 @@ console.log(results); // [{ name: 'ditto', ... }, { name: 'hitmonlee', ... }, ..
 
 You can also mix existing promises and function wrappers.
 
-````ts
+```ts
 const existingPromise = fetch("https://pokeapi.co/api/v2/pokemon/ditto").then(
   (r) => r.json()
 );
@@ -101,7 +101,7 @@ queue.clear(): void
 queue.active(): number
 /** Returns the total number of promises in the queue */
 queue.size(): number
-````
+```
 
 ## Comparisons and benchmarks
 
