@@ -130,7 +130,7 @@ describe('main', () => {
 			}
 			setTimeout(() => {
 				expect(queue.size()).toBeGreaterThanOrEqual(
-					jobs - 1 - Math.trunc((clearTime / jobTime) * 2)
+					jobs - 1 - Math.trunc((clearTime / jobTime) * 2),
 				)
 				queue.clear()
 				expect(queue.size()).toBe(2)
@@ -171,6 +171,38 @@ describe('main', () => {
 		expect(runOne).toBeGreaterThan(240)
 		expect(runTwo).toBeGreaterThan(140)
 		expect(runTwo).toBeLessThan(160)
+	})
+
+	test('all should resolve results in input order while respecting concurrency', async () => {
+		const queue = newQueue(2)
+		let running = 0
+		let maxRunning = 0
+		const tasks = Array.from(
+			{ length: 6 },
+			(_, i) => () =>
+				new Promise<number>((resolve) => {
+					running++
+					if (running > maxRunning) maxRunning = running
+					setTimeout(() => {
+						running--
+						resolve(i)
+					}, 20 - i)
+				}),
+		)
+		const results = await queue.all(tasks)
+		expect(results).toEqual([0, 1, 2, 3, 4, 5])
+		expect(maxRunning).toBeLessThanOrEqual(2)
+		await queue.done()
+		expect(queue.size()).toBe(0)
+	})
+
+	test('all should accept existing promises and wrappers', async () => {
+		const queue = newQueue(3)
+		const existing = wait(5).then(() => 'a')
+		const results = await queue.all([existing, () => wait(1).then(() => 'b')])
+		expect(results).toEqual(['a', 'b'])
+		await queue.done()
+		expect(queue.size()).toBe(0)
 	})
 })
 

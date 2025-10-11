@@ -13,6 +13,7 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
+  let queue;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -32,7 +33,7 @@ let newQueue = (concurrency) => {
       );
     }
   };
-  return {
+  return queue = {
     add(p) {
       let node = { p: AsyncResource.bind(p) };
       let promise = new Promize((res, rej) => {
@@ -62,7 +63,8 @@ let newQueue = (concurrency) => {
       size = active;
     },
     active: () => active,
-    size: () => size
+    size: () => size,
+    all: (fns) => Promize.all(fns.map((fn) => queue.add(typeof fn === "function" ? fn : () => fn)))
   };
 };
 export {

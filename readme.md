@@ -41,9 +41,47 @@ console.log('done')
 The return value of `queue.add` is the same as the return value of the supplied function.
 
 ```ts
-const response = await queue.add(() => fetch('https://pokeapi.co/api/v2/pokemon'))
-console.log(response.ok, response.status, response.headers)
+const response = await queue.add(() =>
+  fetch("https://pokeapi.co/api/v2/pokemon")
+);
+console.log(response.ok, response.status, response.headers);
 ```
+
+### Batch operations
+
+`queue.all` is like `Promise.all` with concurrency control:
+
+```ts
+import { newQueue } from "@henrygd/queue";
+
+const queue = newQueue(2);
+
+const tasks = ["ditto", "hitmonlee", "pidgeot", "poliwhirl"].map(
+  (name) => async () => {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    return await res.json();
+  }
+);
+
+// Process all tasks concurrently (limited by queue concurrency) and wait for all to complete
+const results = await queue.all(tasks);
+console.log(results); // [{ name: 'ditto', ... }, { name: 'hitmonlee', ... }, ...]
+```
+
+You can also mix existing promises and function wrappers.
+
+````ts
+const existingPromise = fetch("https://pokeapi.co/api/v2/pokemon/ditto").then(
+  (r) => r.json()
+);
+const results = await queue.all([
+  existingPromise,
+  () =>
+    fetch("https://pokeapi.co/api/v2/pokemon/pidgeot").then((r) => r.json()),
+]);
+```
+
+Note that only the wrapper functions are queued, since existing promises start running as soon as you create them.
 
 > [!TIP]
 > If you need support for Node's [AsyncLocalStorage](https://nodejs.org/api/async_context.html#introduction), import `@henrygd/queue/async-storage` instead.
@@ -53,6 +91,8 @@ console.log(response.ok, response.status, response.headers)
 ```ts
 /** Add an async function / promise wrapper to the queue */
 queue.add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>
+/** Adds promises (or wrappers) to the queue and resolves like Promise.all */
+queue.all<T>(promiseFunctions: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]>
 /** Returns a promise that resolves when the queue is empty */
 queue.done(): Promise<void>
 /** Empties the queue (active promises are not cancelled) */
@@ -61,13 +101,13 @@ queue.clear(): void
 queue.active(): number
 /** Returns the total number of promises in the queue */
 queue.size(): number
-```
+````
 
 ## Comparisons and benchmarks
 
 | Library                                                         | Version | Bundle size (B) | Weekly downloads |
 | :-------------------------------------------------------------- | :------ | :-------------- | :--------------- |
-| @henrygd/queue                                                  | 1.0.6   | 355             | dozens :)        |
+| @henrygd/queue                                                  | 1.1.0   | 420             | hundreds :)      |
 | [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973      |
 | [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627       |
 | [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355       |
@@ -145,4 +185,4 @@ This was run locally using [Wrangler](https://developers.cloudflare.com/workers/
 
 [MIT license](/LICENSE)
 
-[^benchmark]: In reality, you may not be running so many jobs at once, and your jobs will take much longer to resolve. So performance will depend more on the jobs themselves.
+[^benchmark]: In real applications, you may not be running so many jobs at once, and your jobs will take much longer to resolve. So performance will depend more on the jobs themselves.

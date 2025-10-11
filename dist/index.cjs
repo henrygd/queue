@@ -15,11 +15,11 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var async_queue_exports = {};
-__export(async_queue_exports, {
+var queue_exports = {};
+__export(queue_exports, {
   newQueue: () => newQueue
 });
-module.exports = __toCommonJS(async_queue_exports);
+module.exports = __toCommonJS(queue_exports);
 let Promize = Promise;
 let newQueue = (concurrency) => {
   let active = 0;
@@ -28,6 +28,7 @@ let newQueue = (concurrency) => {
   let tail;
   let resolveDonePromise;
   let donePromise;
+  let queue;
   let afterRun = () => {
     active--;
     if (--size) {
@@ -47,7 +48,7 @@ let newQueue = (concurrency) => {
       );
     }
   };
-  return {
+  return queue = {
     add(p) {
       let node = { p };
       let promise = new Promize((res, rej) => {
@@ -77,6 +78,7 @@ let newQueue = (concurrency) => {
       size = active;
     },
     active: () => active,
-    size: () => size
+    size: () => size,
+    all: (fns) => Promize.all(fns.map((fn) => queue.add(typeof fn === "function" ? fn : () => fn)))
   };
 };

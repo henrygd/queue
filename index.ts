@@ -22,6 +22,8 @@ export interface Queue {
 	active(): number
 	/** Returns the total number of promises in the queue */
 	size(): number
+	/** Adds promises (or wrappers) to the queue and resolves like Promise.all */
+	all<T>(promiseFunctions: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]>
 }
 
 // this just saves a few bytes
@@ -40,6 +42,7 @@ export let newQueue = (concurrency: number): Queue => {
 	let tail: Node<PromiseLike<any>> | undefined | null
 	let resolveDonePromise: (value: void | PromiseLike<void>) => void
 	let donePromise: Promise<void> | void
+	let queue: Queue
 
 	let afterRun = () => {
 		active--
@@ -62,7 +65,7 @@ export let newQueue = (concurrency: number): Queue => {
 		}
 	}
 
-	return {
+	return (queue = {
 		add<T>(p: () => PromiseLike<T>) {
 			let node = { p } as Node<PromiseLike<T>>
 			let promise = new Promize((res, rej) => {
@@ -93,5 +96,7 @@ export let newQueue = (concurrency: number): Queue => {
 		},
 		active: () => active,
 		size: () => size,
-	}
+		all: <T>(fns: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]> => 
+			Promize.all(fns.map(fn => queue.add(typeof fn === 'function' ? fn : () => fn))),
+	})
 }

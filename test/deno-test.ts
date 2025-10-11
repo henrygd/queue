@@ -154,7 +154,7 @@ test('clear should clear the queue', async () => {
 	const runTimes = [] as number[]
 
 	for (let i = 0; i < 2; i++) {
-		let start = performance.now()
+		const start = performance.now()
 		for (let i = 0; i < 10; i++) {
 			queue.add(() => wait(50))
 		}
@@ -169,6 +169,38 @@ test('clear should clear the queue', async () => {
 	expect(runOne).toBeGreaterThan(240)
 	expect(runTwo).toBeGreaterThan(140)
 	expect(runTwo).toBeLessThan(160)
+})
+
+test('all should resolve results in input order while respecting concurrency', async () => {
+	const queue = newQueue(2)
+	let running = 0
+	let maxRunning = 0
+	const tasks = Array.from(
+		{ length: 6 },
+		(_, i) => () =>
+			new Promise<number>((resolve) => {
+				running++
+				if (running > maxRunning) maxRunning = running
+				setTimeout(() => {
+					running--
+					resolve(i)
+				}, 20 - i)
+			}),
+	)
+	const results = await queue.all(tasks)
+	expect(results).toEqual([0, 1, 2, 3, 4, 5])
+	expect(maxRunning).toBeLessThanOrEqual(2)
+	await queue.done()
+	expect(queue.size()).toBe(0)
+})
+
+test('all should accept existing promises and wrappers', async () => {
+	const queue = newQueue(3)
+	const existing = wait(5).then(() => 'a')
+	const results = await queue.all([existing, () => wait(1).then(() => 'b')])
+	expect(results).toEqual(['a', 'b'])
+	await queue.done()
+	expect(queue.size()).toBe(0)
 })
 
 test('should propagate async execution context properly', async () => {

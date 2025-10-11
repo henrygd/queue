@@ -10,6 +10,8 @@ export interface Queue {
     active(): number;
     /** Returns the total number of promises in the queue */
     size(): number;
+    /** Adds promises (or wrappers) to the queue and resolves like Promise.all */
+    all<T>(promiseFunctions: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]>;
 }
 /**
  * Creates a new queue with the specified concurrency level.
