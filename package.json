@@ -22,13 +22,18 @@
 			"import": "./dist/index.async-storage.js",
 			"require": "./dist/index.async-storage.cjs",
 			"types": "./dist/index.d.ts"
+		},
+		"./rl": {
+			"import": "./dist/index.rl.js",
+			"require": "./dist/index.rl.cjs",
+			"types": "./dist/index.rl.d.ts"
 		}
 	},
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "bun run build.ts && ls -l dist/index.min.js && bun run generate-types",
 		"build:skip-types": "bun run build.ts && ls -l dist/index.min.js",
-		"generate-types": "tsc -d index.ts --outDir dist --emitDeclarationOnly > /dev/null",
+		"generate-types": "tsc -d index.ts --outDir dist --emitDeclarationOnly > /dev/null && tsc -d index.rl.ts --outDir dist --emitDeclarationOnly > /dev/null",
 		"test": "bun run test:dev && bun test:dist",
 		"test:dev": "bun test test/bun.test.ts",
 		"test:dist": "DIST=true bun test test/bun.test.ts",

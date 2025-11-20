@@ -49,3 +49,37 @@ await build({
  */`,
 	},
 })
+
+await build({
+	entryPoints: ['index.rl.ts'],
+	mangleProps: /^res$|^rej$|^next$/,
+	format: 'esm',
+	outfile: './dist/index.rl.js',
+	banner: {
+		js: `/**
+ * This version of \`@henrygd/queue\` supports rate limiting.
+ * @module
+ */`,
+	},
+})
+
+await build({
+	entryPoints: ['index.rl.ts'],
+	mangleProps: /^res$|^rej$|^next$/,
+	format: 'cjs',
+	outfile: './dist/index.rl.cjs',
+	banner: {
+		js: `/**
+ * This version of \`@henrygd/queue\` supports rate limiting.
+ * @module
+ */`,
+	},
+})
+
+await build({
+	entryPoints: ['index.rl.ts'],
+	minify: true,
+	mangleProps: /^res$|^rej$|^next$/,
+	format: 'esm',
+	outfile: './dist/index.rl.min.js',
+})

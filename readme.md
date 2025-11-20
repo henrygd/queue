@@ -6,7 +6,7 @@
 
 [![File Size][size-image]](https://github.com/henrygd/queue/blob/main/dist/index.min.js) [![MIT license][license-image]][license-url] [![JSR Score 100%](https://jsr.io/badges/@henrygd/queue/score)](https://jsr.io/@henrygd/queue)
 
-Tiny async queue with concurrency control. Like `p-limit` or `fastq`, but smaller and faster. See [comparisons and benchmarks](#comparisons-and-benchmarks) below.
+Tiny async queue with concurrency control. Like `p-limit` or `fastq`, but smaller and faster. Optional [time-based rate limiting](#time-based-rate-limiting) also available. See [comparisons and benchmarks](#comparisons-and-benchmarks) below.
 
 Works with: <img alt="browsers" title="This package works with browsers." height="16px" src="https://jsr.io/logos/browsers.svg" /> <img alt="Deno" title="This package works with Deno." height="16px" src="https://jsr.io/logos/deno.svg" /> <img alt="Node.js" title="This package works with Node.js" height="16px" src="https://jsr.io/logos/node.svg" /> <img alt="Cloudflare Workers" title="This package works with Cloudflare Workers." height="16px" src="https://jsr.io/logos/cloudflare-workers.svg" /> <img alt="Bun" title="This package works with Bun." height="16px" src="https://jsr.io/logos/bun.svg" />
 
@@ -81,6 +81,35 @@ const results = await queue.all([
 
 Note that only the wrapper functions are queued, since existing promises start running as soon as you create them.
 
+## Time-based rate limiting
+
+If you need to limit not just concurrency (how many tasks run simultaneously) but also **rate** (how many tasks can start within a time window), use `@henrygd/queue/rl`.
+
+This is useful when working with APIs that have rate limits.
+
+```ts
+import { newQueue } from '@henrygd/queue/rl'
+
+// max 10 concurrent requests, but only 3 can start per second
+const queue = newQueue(10, 3, 1000)
+
+const start = Date.now()
+
+for (let i = 1; i <= 10; i++) {
+   queue.add(async () => console.log(`Task ${i} started at ${Date.now() - start}ms`))
+}
+
+await queue.done()
+```
+
+The signature is: `newQueue(concurrency, rate?, interval?)`.
+
+- **`concurrency`** - Maximum number of tasks running simultaneously
+- **`rate`** - Maximum number of tasks that can start within the `interval` (optional)
+- **`interval`** - Time window in milliseconds for rate limiting (optional)
+
+If you omit `rate` and `interval`, it works exactly like the main package (just concurrency limiting).
+
 > [!TIP]
 > If you need support for Node's [AsyncLocalStorage](https://nodejs.org/api/async_context.html#introduction), import `@henrygd/queue/async-storage` instead.
 
@@ -105,7 +134,8 @@ queue.size(): number
 
 | Library                                                         | Version | Bundle size (B) | Weekly downloads |
 | :-------------------------------------------------------------- | :------ | :-------------- | :--------------- |
-| @henrygd/queue                                                  | 1.1.0   | 420             | hundreds :)      |
+| @henrygd/queue                                                  | 1.2.0   | 472             | hundreds :)      |
+| @henrygd/queue/rl                                               | 1.2.0   | 685             | -                |
 | [p-limit](https://github.com/sindresorhus/p-limit)              | 5.0.0   | 1,763           | 118,953,973      |
 | [async.queue](https://github.com/caolan/async)                  | 3.2.5   | 6,873           | 53,645,627       |
 | [fastq](https://github.com/mcollina/fastq)                      | 1.17.1  | 3,050           | 39,257,355       |
