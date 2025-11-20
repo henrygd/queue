@@ -125,8 +125,10 @@ describe('main', () => {
 			const jobs = 50
 			const jobTime = Math.ceil(Math.random() * 5 + 1)
 			const clearTime = Math.ceil(Math.random() * 25 + 5)
+			const promises = []
 			for (let i = 0; i < jobs; i++) {
-				queue.add(() => wait(jobTime))
+				// Catch rejections from cleared tasks to avoid unhandled rejections
+				promises.push(queue.add(() => wait(jobTime)).catch(() => { }))
 			}
 			setTimeout(() => {
 				expect(queue.size()).toBeGreaterThanOrEqual(
@@ -158,7 +160,8 @@ describe('main', () => {
 		for (let i = 0; i < 2; i++) {
 			let start = performance.now()
 			for (let i = 0; i < 10; i++) {
-				queue.add(() => wait(50))
+				// Catch rejections from cleared tasks
+				queue.add(() => wait(50)).catch(() => { })
 			}
 			if (i === 1) {
 				setTimeout(queue.clear, 110)

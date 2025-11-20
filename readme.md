@@ -93,7 +93,7 @@ queue.add<T>(promiseFunction: () => PromiseLike<T>): Promise<T>
 queue.all<T>(promiseFunctions: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]>
 /** Returns a promise that resolves when the queue is empty */
 queue.done(): Promise<void>
-/** Empties the queue (active promises are not cancelled) */
+/** Empties the queue - pending promises are rejected, active promises continue */
 queue.clear(): void
 /** Returns the number of promises currently running */
 queue.active(): number

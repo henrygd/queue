@@ -91,12 +91,15 @@ export let newQueue = (concurrency: number): Queue => {
 			return (donePromise = new Promize((resolve) => (resolveDonePromise = resolve)))
 		},
 		clear() {
+			for (let node = head; node; node = node.next) {
+				node.rej(new Error('Queue cleared'))
+			}
 			head = tail = null
 			size = active
 		},
 		active: () => active,
 		size: () => size,
-		all: <T>(fns: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]> => 
+		all: <T>(fns: Array<PromiseLike<T> | (() => PromiseLike<T>)>): Promise<T[]> =>
 			Promize.all(fns.map(fn => queue.add(typeof fn === 'function' ? fn : () => fn))),
 	})
 }
