@@ -1,5 +1,9 @@
+/**
+ * This version of `@henrygd/queue` supports rate limiting.
+ * @module
+ */
 let Promize = Promise;
-let newQueue = (concurrency) => {
+let newQueue = (concurrency, rate, interval) => {
   let active = 0;
   let size = 0;
   let head;
@@ -7,6 +11,8 @@ let newQueue = (concurrency) => {
   let resolveDonePromise;
   let donePromise;
   let queue;
+  let scheduled = false;
+  let startTimes = [];
   let afterRun = () => {
     active--;
     if (--size) {
@@ -16,14 +22,32 @@ let newQueue = (concurrency) => {
     }
   };
   let run = () => {
+    if (scheduled || !head) return;
+    if (active >= concurrency) return;
+    if (rate !== void 0 && interval !== void 0) {
+      let now = Date.now();
+      startTimes = startTimes.filter((t) => now - t < interval);
+      if (startTimes.length >= rate) {
+        scheduled = true;
+        let oldestStart = startTimes[0];
+        let delay = interval - (now - oldestStart);
+        setTimeout(() => {
+          scheduled = false;
+          run();
+        }, delay);
+        return;
+      }
+      startTimes.push(now);
+    }
+    active++;
+    let curHead = head;
+    head = head.a;
+    curHead.p().then(
+      (v) => (curHead.c(v), afterRun()),
+      (e) => (curHead.b(e), afterRun())
+    );
     if (head && active < concurrency) {
-      active++;
-      let curHead = head;
-      head = head.a;
-      curHead.p().then(
-        (v) => (curHead.c(v), afterRun()),
-        (e) => (curHead.b(e), afterRun())
-      );
+      run();
     }
   };
   return queue = {
@@ -57,6 +81,10 @@ let newQueue = (concurrency) => {
       }
       head = tail = null;
       size = active;
+      startTimes = [];
+      if (!size && donePromise) {
+        donePromise = resolveDonePromise?.();
+      }
     },
     active: () => active,
     size: () => size,
